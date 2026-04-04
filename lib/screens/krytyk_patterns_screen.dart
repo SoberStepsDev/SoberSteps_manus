@@ -88,7 +88,6 @@ class _KrytykPatternsScreenState extends State<KrytykPatternsScreen> {
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
       body: ProGateWidget(
-        isPro: isPro,
         trigger: 'krytyk_patterns',
         child: _loading
             ? const Center(child: CircularProgressIndicator())

@@ -6,7 +6,6 @@ import '../app/theme.dart';
 import '../providers/naomi_provider.dart';
 import '../providers/purchase_provider.dart';
 import '../l10n/strings.dart';
-import 'paywall_screen.dart';
 import '../services/analytics_service.dart';
 
 /// Philosophy applied: Naomi asks — never commands, never judges

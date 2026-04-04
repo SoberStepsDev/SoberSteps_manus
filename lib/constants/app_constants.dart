@@ -38,6 +38,8 @@ class AppConstants {
   static const int maxOutcomeLength = 500;
 
   static const String contactEmail = 'sobersteps@pm.me';
+  static const String termsUrl = 'https://sobersteps.app/terms';
+  static const String privacyUrl = 'https://sobersteps.app/privacy';
   /// Deep link for auth callback; must match Android/iOS intent filters. Do not use for arbitrary URLs.
   static const String authRedirectScheme = 'com.patryk.sobersteps';
   static const String authRedirectHost = 'login-callback';

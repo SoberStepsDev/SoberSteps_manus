@@ -5,94 +5,146 @@
 ---
 
 ## Supabase ✅
+
 - [x] Wszystkie tabele z RLS (74+ polityk)
+
 - [x] RPC: `get_days_sober`, `check_checkin_rate_limit`, `check_post_rate_limit`, `check_three_am_rate_limit`, `check_letter_rate_limit`, `flag_post`, `get_ab_variant`
+
 - [x] Edge Functions: `moderate_three_am_post`, `notify_users`, `naomi-feedback`, `send_welcome_email`, `send_moderation_email_brevo`, `crash-log-feedback`, `send_confirmation_email`
+
 - [x] Anonymous auth — **⚠️ WŁĄCZYĆ RĘCZNIE**: Dashboard → Auth → Providers → Anonymous → Enable
+
 - [x] Trigger `moderate_three_am_post` na tabeli `three_am_wall` (E2E verified)
 
 ---
 
 ## RevenueCat ✅
+
 - [x] Projekt `proj92c2b22c` — SoberSteps
+
 - [x] Entitlement `pro` (lookup_key: `pro`) z 4 produktami Play Store
+
 - [x] Pakiety: monthly/annual/lifetime/family
-- [ ] **⚠️ RĘCZNIE**: Dashboard → Apps → SoberSteps (Play Store) → Package Name: `com.sobersteps.app`
+
+- [x] **⚠️ RĘCZNIE**: Dashboard → Apps → SoberSteps (Play Store) → Package Name: `com.sobersteps.app`
+
 - [ ] **⚠️ RĘCZNIE**: Skonfigurować App Store Connect (iOS) jeśli dotyczy
+
 - [ ] Test sandbox: zakup → `entitlements['pro'].isActive == true`
 
 ---
 
 ## OneSignal
+
 - [ ] Stworzyć aplikację w OneSignal Dashboard
+
 - [ ] Skopiować App ID do `AppConstants.oneSignalAppId`
+
 - [ ] Skonfigurować Firebase Cloud Messaging (FCM) w OneSignal
+
 - [ ] Test: push na urządzeniu testowym
 
 ---
 
 ## Firebase
+
 - [ ] Pobrać `google-services.json` (Android) i `GoogleService-Info.plist` (iOS)
+
 - [ ] Umieścić `google-services.json` w `android/app/`
+
 - [ ] Włączyć Crashlytics w Firebase Console
+
 - [ ] Test: `FirebaseCrashlytics.instance.crash()` → widoczny w dashboard
 
 ---
 
 ## Android Build
+
 - [x] `applicationId = "com.sobersteps.app"`
+
 - [x] `minSdk = 21`
+
 - [x] `targetSdk = 34`
+
 - [x] `isMinifyEnabled = true`, `isShrinkResources = true`
+
 - [x] Keystore signing config (z `key.properties`)
+
 - [ ] Stworzyć keystore: `keytool -genkey -v -keystore release.jks -alias sobersteps -keyalg RSA -keysize 2048 -validity 10000`
+
 - [ ] Uzupełnić `android/key.properties`
+
 - [ ] `flutter build appbundle --release --dart-define=IS_DEVELOPMENT=false ...`
 
 ---
 
 ## Secrets (GitHub Actions)
+
 Dodać w: Settings → Secrets → Actions:
+
 - [ ] `KEYSTORE_BASE64` — `base64 release.jks`
+
 - [ ] `KEYSTORE_PASSWORD`
+
 - [ ] `KEY_PASSWORD`
+
 - [ ] `KEY_ALIAS`
+
 - [ ] `SUPABASE_ANON_KEY`
+
 - [ ] `REVENUECAT_ANDROID_KEY`
+
 - [ ] `ONESIGNAL_APP_ID`
 
 ---
 
 ## Assets
+
 - [x] `assets/images/SoberStepsLogo.png`
+
 - [x] `assets/audio/milestones/` — 11 plików MP3
+
 - [x] `assets/audio/craving/` — 3 pliki MP3
+
 - [ ] `assets/voice/` — Naomi voice files (ElevenLabs) — **BRAKUJE**
+
 - [ ] `assets/audio/three_am/` — sprawdzić zawartość
+
 - [ ] Lottie animations — sprawdzić czy CDN URL działa lub dodać lokalnie
 
 ---
 
 ## Przed publikacją na Google Play
+
 - [ ] Privacy Policy URL: `AppConstants.privacyUrl`
+
 - [ ] Terms of Service URL: `AppConstants.termsUrl`
+
 - [ ] SAMHSA banner widoczny na ProfileScreen (non-dismissible) ✅
+
 - [ ] Medical Disclaimer w kroku 1 onboardingu ✅
+
 - [ ] Age Gate (18+) w kroku 1 onboardingu ✅
+
 - [ ] Data Safety form w Google Play Console
+
 - [ ] Screenshots (min. 2 telefon, 1 tablet)
+
 - [ ] Feature graphic (1024×500)
+
 - [ ] App icon (512×512)
 
 ---
 
 ## Flutter Analyze
+
 ```bash
 flutter analyze --no-fatal-infos
 # Expected: 0 errors
 ```
 
 ## Release Build Command
+
 ```bash
 flutter build appbundle --release \
   --dart-define=IS_DEVELOPMENT=false \
@@ -104,8 +156,9 @@ flutter build appbundle --release \
 ---
 
 ## Status Fazy 2
+
 | Sesja | Moduł | Status |
-|---|---|---|
+| --- | --- | --- |
 | S1 | Fundament Flutter | ✅ |
 | S2-3 | Onboarding + Auth | ✅ (Cursor AI) |
 | S4 | HomeScreen + SobrietyProvider | ✅ |
@@ -125,3 +178,4 @@ flutter build appbundle --release \
 | S18 | MirrorMind Data Foundation | ✅ |
 | S19 | Security + Offline Sync | ✅ |
 | S20 | Launch Prep | ✅ |
+

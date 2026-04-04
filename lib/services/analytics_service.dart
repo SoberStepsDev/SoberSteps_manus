@@ -64,6 +64,7 @@ class AnalyticsService {
   static const eCrashLogOpened = 'crash_log_opened';
   static const eCrashLogSaved = 'crash_log_saved';
   static const eWallOfStrengthOpened = 'wall_of_strength_opened';
+  static const eProfileOpened = 'profile_opened';
 
   // ─── Core methods ──────────────────────────────────────────────────────────────────────────────
 

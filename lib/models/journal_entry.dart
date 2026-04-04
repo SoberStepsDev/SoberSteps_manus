@@ -27,6 +27,11 @@ class JournalEntry {
         createdAt: DateTime.parse(json['created_at']),
       );
 
+  JournalEntry copyWith({String? id, String? userId, int? mood, int? cravingLevel, List<String>? triggers, String? note, DateTime? createdAt}) => JournalEntry(
+        id: id ?? this.id, userId: userId ?? this.userId, mood: mood ?? this.mood,
+        cravingLevel: cravingLevel ?? this.cravingLevel, triggers: triggers ?? this.triggers,
+        note: note ?? this.note, createdAt: createdAt ?? this.createdAt);
+
   Map<String, dynamic> toJson() => {
         'user_id': userId,
         'mood': mood,

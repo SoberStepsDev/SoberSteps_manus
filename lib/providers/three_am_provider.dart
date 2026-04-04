@@ -57,7 +57,7 @@ class ThreeAmProvider extends ChangeNotifier {
           .from('three_am_wall')
           .select('id')
           .eq('user_id', user.id)
-          .is_('resolved_at', null)
+          .isFilter('resolved_at', null)
           .order('created_at', ascending: false)
           .limit(1);
       if ((data as List).isNotEmpty) {

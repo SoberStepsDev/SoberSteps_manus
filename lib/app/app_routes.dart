@@ -40,6 +40,7 @@ import '../screens/x_marker_screen.dart';
 import '../screens/krytyk_patterns_screen.dart';
 import '../screens/crash_log_screen.dart';
 import '../screens/rts_diagnostic_screen.dart';
+import '../screens/rts_reassessment_screen.dart';
 
 Map<String, WidgetBuilder> buildAppRoutes() {
   return {
@@ -77,7 +78,7 @@ Map<String, WidgetBuilder> buildAppRoutes() {
     '/meetings': (_) => const MeetingsScreen(),
     '/accountability': (_) => const AccountabilityScreen(),
     '/notifications': (_) => const NotificationsScreen(),
-    '/return-to-self': (_) => const ReturnToSelfScreen(),
+    '/return-to-self': (_) => ReturnToSelfScreen(),
     '/karma-mirror': (_) => const KarmaMirrorScreen(),
     '/naomi': (_) => const NaomiScreen(),
     '/wall-of-strength': (_) => const WallOfStrengthScreen(),
@@ -89,5 +90,6 @@ Map<String, WidgetBuilder> buildAppRoutes() {
     '/krytyk-patterns': (_) => const KrytykPatternsScreen(),
     '/crash-log': (_) => const CrashLogScreen(),
     '/rts-diagnostic': (_) => const RtsDiagnosticScreen(),
+    '/rts-reassessment': (_) => const RTSReassessmentScreen(),
   };
 }

@@ -163,6 +163,18 @@ class RtsDiagnostic {
       _ => null,
     };
   }
+
+  /// Max possible score (5 questions × 3 max points each).
+  static int get maxScore => questions.length * 3;
+
+  static String profileEmoji(RtsDiagnosticProfile p) {
+    return switch (p) {
+      RtsDiagnosticProfile.returningToYourself => '🌱',
+      RtsDiagnosticProfile.innerCritic => '🪞',
+      RtsDiagnosticProfile.invisibleWound => '🌊',
+      RtsDiagnosticProfile.survivalMode => '🛡️',
+    };
+  }
 }
 
 /// Sync with `profiles.rts_diagnostic_score` / `rts_diagnostic_profile` (Supabase).

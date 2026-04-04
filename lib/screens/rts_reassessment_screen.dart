@@ -116,7 +116,7 @@ class _RTSReassessmentScreenState extends State<RTSReassessmentScreen> {
               children: [
                 Text('${i + 1} / ${questions.length}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                 const SizedBox(height: 16),
-                Text(q.question, style: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w600, height: 1.4)),
+                Text(q.prompt, style: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w600, height: 1.4)),
                 const SizedBox(height: 32),
                 ...List.generate(q.options.length, (oi) => GestureDetector(
                   onTap: () => _selectOption(i, oi),

@@ -45,9 +45,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await prefs.setBool('notif_enabled', val);
     final ns = NotificationService();
     if (val) {
-      await ns.scheduleCheckinReminder(_reminderHour);
+      ns.scheduleCheckinReminder(_reminderHour);
     } else {
-      await ns.cancelCheckinReminder();
+      ns.cancelCheckinReminder();
     }
     setState(() => _notifEnabled = val);
     AnalyticsService().track('notification_toggled', {'enabled': val});
@@ -73,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (picked == null) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('checkin_reminder_hour', picked);
-    await NotificationService().scheduleCheckinReminder(picked);
+    NotificationService().scheduleCheckinReminder(picked);
     setState(() => _reminderHour = picked);
   }
 
@@ -263,7 +263,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ListTile(
       leading: Icon(icon, color: AppColors.textSecondary),
       title: Text(title, style: const TextStyle(color: AppColors.textPrimary)),
-      trailing: Switch(value: value, onChanged: onChanged, activeColor: AppColors.primary),
+      trailing: Switch(value: value, onChanged: onChanged, activeThumbColor: AppColors.primary),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }

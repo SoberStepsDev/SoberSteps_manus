@@ -241,7 +241,7 @@ class _SoberStepsAppState extends State<SoberStepsApp> {
             '/meetings': (_) => const MeetingsScreen(),
             '/accountability': (_) => const AccountabilityScreen(),
             '/notifications': (_) => const NotificationsScreen(),
-            '/return-to-self': (_) => const ReturnToSelfScreen(),
+            '/return-to-self': (_) => ReturnToSelfScreen(),
             '/karma-mirror': (_) => const KarmaMirrorScreen(),
             '/naomi': (_) => const NaomiScreen(),
             '/wall-of-strength': (_) => const WallOfStrengthScreen(),

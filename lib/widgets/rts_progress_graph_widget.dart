@@ -54,7 +54,6 @@ class _RTSProgressGraphWidgetState extends State<RTSProgressGraphWidget> {
           ]),
           const SizedBox(height: 12),
           ProGateWidget(
-            isPro: isPro,
             trigger: 'rts_progress_graph',
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
