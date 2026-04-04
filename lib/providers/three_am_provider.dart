@@ -9,9 +9,16 @@ class ThreeAmProvider extends ChangeNotifier {
   int _resolvedCount = 0;
   bool _loading = false;
 
+  /// ID of the current user's unresolved post (set after submitPost, cleared after resolve).
+  String? _myActivePostId;
+
   List<ThreeAmPost> get resolvedPosts => _resolvedPosts;
   int get resolvedCount => _resolvedCount;
   bool get loading => _loading;
+
+  /// Whether the current user has an active (unresolved) post.
+  bool get hasActivePost => _myActivePostId != null;
+  String? get myActivePostId => _myActivePostId;
 
   Future<void> loadPosts() async {
     _loading = true;
@@ -39,34 +46,76 @@ class ThreeAmProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Load the current user's unresolved post on startup (for "I got through" button state).
+  Future<void> loadMyActivePost() async {
+    final client = Supabase.instance.client;
+    final user = client.auth.currentUser;
+    if (user == null) return;
+    try {
+      final data = await client
+          .from('three_am_wall')
+          .select('id')
+          .eq('user_id', user.id)
+          .is_('resolved_at', null)
+          .order('created_at', ascending: false)
+          .limit(1);
+      if ((data as List).isNotEmpty) {
+        _myActivePostId = data.first['id'] as String?;
+        notifyListeners();
+      }
+    } catch (_) {}
+  }
+
+  /// Submit "I'm struggling" post. Returns null on success, error string on failure.
+  /// Sets [_myActivePostId] on success for later resolve.
   Future<String?> submitPost() async {
     final client = Supabase.instance.client;
     final user = client.auth.currentUser;
     if (user == null) return 'Zaloguj się';
 
     try {
-      final canPost = await client.rpc('check_three_am_rate_limit', params: {'p_user_id': user.id});
+      final canPost = await client.rpc(
+        'check_three_am_rate_limit',
+        params: {'p_user_id': user.id},
+      );
       if (canPost == false) return 'Poczekaj przed kolejnym wpisem';
     } catch (_) {}
 
     try {
-      await client.from('three_am_wall').insert({
-        'user_id': user.id,
-      });
+      final response = await client
+          .from('three_am_wall')
+          .insert({'user_id': user.id})
+          .select('id')
+          .single();
+      _myActivePostId = response['id'] as String?;
       _analytics.track('three_am_wall_posted');
+      notifyListeners();
       return null;
     } catch (e) {
       return 'Coś poszło nie tak. Spróbuj ponownie.';
     }
   }
 
-  Future<String?> resolvePost(String postId, {String? outcomeText}) async {
+  /// Resolve the current user's active post.
+  /// Uses [postId] if provided, otherwise falls back to [_myActivePostId].
+  Future<String?> resolvePost(String? postId, {String? outcomeText}) async {
+    final id = postId ?? _myActivePostId;
+    if (id == null) return 'Brak aktywnego wpisu do zamknięcia';
+
     try {
-      await Supabase.instance.client.from('three_am_wall').update({
+      final update = <String, dynamic>{
         'resolved_at': DateTime.now().toIso8601String(),
-        ...? (outcomeText != null ? {'outcome_text': outcomeText} : null),
-      }).eq('id', postId);
+      };
+      if (outcomeText != null && outcomeText.isNotEmpty) {
+        update['outcome_text'] = outcomeText;
+      }
+      await Supabase.instance.client
+          .from('three_am_wall')
+          .update(update)
+          .eq('id', id);
+      _myActivePostId = null;
       _analytics.track('three_am_wall_resolved');
+      notifyListeners();
       await loadPosts();
       return null;
     } catch (e) {

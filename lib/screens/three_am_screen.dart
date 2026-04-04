@@ -23,7 +23,9 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<ThreeAmProvider>().loadPosts();
+    final p = context.read<ThreeAmProvider>();
+    p.loadPosts();
+    p.loadMyActivePost();
     _soundscape.play('white_noise');
   }
 
@@ -80,7 +82,7 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
                     },
                   ),
           ),
-          if (isLoggedIn) _buildBottomActions(provider),
+          if (isLoggedIn) _buildBottomActions(context, provider),
         ],
       ),
     );
@@ -102,7 +104,7 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
     );
   }
 
-  Widget _buildBottomActions(ThreeAmProvider provider) {
+  Widget _buildBottomActions(BuildContext context, ThreeAmProvider provider) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
@@ -125,10 +127,12 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
             Expanded(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: AppColors.textPrimary),
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  _resolveDialog(provider);
-                },
+                onPressed: provider.hasActivePost
+                    ? () {
+                        HapticFeedback.lightImpact();
+                        _resolveDialog(provider);
+                      }
+                    : null,
                 child: Text(S.t(context, 'iGotThrough')),
               ),
             ),
@@ -175,7 +179,17 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
     controller.dispose();
     if (result == null) return;
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.t(context, 'congrats'))));
-    await provider.loadPosts();
+    // Pass null — provider uses _myActivePostId internally
+    final error = await provider.resolvePost(
+      null,
+      outcomeText: result.trim().isEmpty ? null : result.trim(),
+    );
+    if (!mounted) return;
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(S.t(context, 'congrats'))));
+    }
   }
 }
