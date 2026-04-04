@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lottie/lottie.dart';
+import '../widgets/milestone_upsell_modal.dart';
 import '../app/theme.dart';
 import '../providers/milestone_provider.dart';
 import '../l10n/strings.dart';
@@ -118,6 +119,13 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
     context.read<MilestoneProvider>().recordMilestone(days);
     AnalyticsService().track('milestone_celebrate', {'days': days});
     HapticFeedback.heavyImpact();
+
+    // Upsell modal for free users at trigger milestones (3/7/30/90)
+    // Shown AFTER celebration dialog closes
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (!mounted) return;
+      MilestoneUpsellModal.maybeShow(context, days);
+    });
 
     // TTS fires after 800ms (after zoom + confetti start)
     Future.delayed(const Duration(milliseconds: 800), () {

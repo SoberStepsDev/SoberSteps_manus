@@ -52,6 +52,7 @@ class PurchaseProvider extends ChangeNotifier {
       _isPremium = false;
     }
     await loadOfferings();
+    await _loadShownUpsells();
     final prefs = await SharedPreferences.getInstance();
     _abVariant = prefs.getString('ab_variant') ?? 'A';
     final installStr = prefs.getString('install_date');
@@ -161,7 +162,24 @@ class PurchaseProvider extends ChangeNotifier {
     return S.t(context, 'planPremiumActive');
   }
 
-  bool hasShownUpsell(int milestoneDays) {
-    return false;
+  // Persisted set of milestone days for which upsell was already shown.
+  final Set<int> _shownUpsells = {};
+
+  bool hasShownUpsell(int milestoneDays) => _shownUpsells.contains(milestoneDays);
+
+  Future<void> markUpsellShown(int milestoneDays) async {
+    if (_shownUpsells.contains(milestoneDays)) return;
+    _shownUpsells.add(milestoneDays);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      'shown_upsells',
+      _shownUpsells.map((d) => d.toString()).toList(),
+    );
+  }
+
+  Future<void> _loadShownUpsells() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList('shown_upsells') ?? [];
+    _shownUpsells.addAll(raw.map(int.parse));
   }
 }
