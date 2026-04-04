@@ -189,14 +189,35 @@ class _HomeTabState extends State<_HomeTab> {
                       color: purchase.isPremium ? AppColors.streakBlue.withValues(alpha: 0.3) : Colors.transparent,
                     ),
                 const SizedBox(height: 24),
-                Text(
-                  '${sobriety.daysSober}',
-                  style: const TextStyle(fontSize: 96, fontWeight: FontWeight.w800, letterSpacing: -4, color: AppColors.textPrimary, height: 1),
+                // Animated days counter
+                TweenAnimationBuilder<int>(
+                  tween: IntTween(begin: 0, end: sobriety.daysSober),
+                  duration: const Duration(milliseconds: 800),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, value, _) => Text(
+                    '$value',
+                    style: const TextStyle(
+                      fontSize: 96,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -4,
+                      color: AppColors.textPrimary,
+                      height: 1,
+                    ),
+                  ),
                 ).animate().fadeIn(duration: 400.ms),
                 Text(
-                  'and ${sobriety.hoursSober} hours',
+                  S.t(context, 'daysSober'),
                   style: const TextStyle(fontSize: 18, color: AppColors.textSecondary),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  '+ ${sobriety.hoursSober}h',
+                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                ),
+                if (sobriety.streakDays > 0) ...[  
+                  const SizedBox(height: 8),
+                  _StreakBadge(streak: sobriety.streakDays),
+                ],
                 const SizedBox(height: 24),
                 _ProgressBar(progress: sobriety.progressToNextMilestone, daysToGo: sobriety.daysToNextMilestone, nextMilestone: sobriety.nextMilestone),
                 const SizedBox(height: 16),
@@ -223,6 +244,8 @@ class _HomeTabState extends State<_HomeTab> {
                   const SizedBox(height: 16),
                   _ReturnToSelfCard(),
                 ],
+                const SizedBox(height: 16),
+                const _MirrorMindCard(),
                 const SizedBox(height: 32),
               ],
             ),
@@ -385,6 +408,187 @@ class _ReturnToSelfCard extends StatelessWidget {
         ),
       ),
     ).animate().fadeIn(duration: 400.ms);
+  }
+}
+
+// ─── Streak Badge ────────────────────────────────────────────────────────────
+class _StreakBadge extends StatelessWidget {
+  final int streak;
+  const _StreakBadge({required this.streak});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.streakBlue.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.streakBlue.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.local_fire_department_rounded,
+              color: AppColors.streakBlue, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            '$streak ${streak == 1 ? 'dzień' : 'dni'} z rzędu',
+            style: const TextStyle(
+              color: AppColors.streakBlue,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── MirrorMind Coming Card ───────────────────────────────────────────────────
+class _MirrorMindCard extends StatelessWidget {
+  const _MirrorMindCard();
+
+  void _showModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.fromLTRB(28, 28, 28, 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textSecondary.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              '🪞',
+              style: TextStyle(fontSize: 48),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'MirrorMind',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Twoje wzorce. Twoja intuicja. Twoje odbicie.\n\nMirrorMind to AI, która uczy się Twojego rytmu trzeźwości — i mówi do Ciebie Twoim własnym językiem.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 15,
+                height: 1.6,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+              ),
+              child: const Text(
+                'Dostępne Q3 2026',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        _showModal(context);
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppColors.primary.withOpacity(0.2),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(
+                child: Text('🪞', style: TextStyle(fontSize: 22)),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'MirrorMind',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Twoje odbicie AI — Coming Q3 2026',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'Q3 2026',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(duration: 500.ms, delay: 200.ms);
   }
 }
 

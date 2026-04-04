@@ -1,78 +1,86 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../app/theme.dart';
 import '../core/philosophy_core.dart';
 
 /// DailyPerspectiveWidget — "Uśmiech · Perspektywa · Droga"
-/// Displays a daily rotating philosophy-aligned message on HomeScreen.
-/// No network call — deterministic by day-of-year for zero latency.
+///
+/// 9 filozoficznych promptów z Fazy 11 (MirrorMind seed data).
+/// Rotacja deterministyczna wg dnia roku — zero wywołań sieciowych.
+/// Każdy prompt przechodzi przez [PhilosophyCore.apply] pipeline.
 class DailyPerspectiveWidget extends StatelessWidget {
   const DailyPerspectiveWidget({super.key});
 
-  static const List<String> _perspectives = [
-    'Ciekawe, co przyniesie ten dzień…',
-    'Droga sama się tworzy pod Twoimi stopami.',
-    '80% wystarczy — jesteś już tu.',
-    'Uśmiech wobec nieznanego to odwaga.',
-    'Nie ma mety — jest tylko droga.',
-    'Każdy krok to cały krok.',
-    'Patrz, jak daleko już jesteś.',
-    'Jutro też będzie droga.',
-    'Bycie tu jest wystarczające.',
-    'Ciekawość jest silniejsza niż strach.',
-    'Perspektywa zmienia wszystko.',
-    'Wróciłeś do siebie — to wystarczy.',
-    'Droga trwa dalej, nawet gdy stoisz.',
-    'Uśmiech to nie zaprzeczenie — to wybór.',
-    'Każdy oddech to nowy początek.',
+  /// 9 promptów z Fazy 11 — MirrorMind philosophical seeds
+  static const List<String> _prompts = [
+    // 1. Uśmiech — ciekawość zamiast imperatywu
+    'Co byś zrobił dzisiaj, gdybyś wiedział, że 80% wystarczy?',
+    // 2. Perspektywa — brak mety
+    'Ciekawe, co się wydarzy, jeśli zostaniesz tu jeszcze jeden dzień…',
+    // 3. Droga — nieskończona mapa
+    'Droga sama się tworzy pod Twoimi stopami. Nie musisz jej planować.',
+    // 4. Uśmiech — obserwacja zamiast walki
+    'Możesz poobserwować tę myśl z ciekawością — nie musisz jej słuchać.',
+    // 5. Perspektywa — bez linii końcowej
+    'Patrz, jak daleko już jesteś. Nie ma mety — jest tylko droga.',
+    // 6. Droga — powrót do siebie
+    'Wróciłeś do siebie. To wystarczy na dziś.',
+    // 7. Uśmiech — niedoskonałość jako krok
+    'Może warto sprawdzić, co się stanie, jeśli pozwolisz sobie na 80%?',
+    // 8. Perspektywa — zmiana perspektywy
+    'Każdy krok, który robisz, jest już całym krokiem.',
+    // 9. Droga — jutro też jest droga
+    'Jutro też będzie droga. Dziś wystarczy być tu.',
   ];
 
-  String get _todayPerspective {
-    final dayOfYear = DateTime.now().difference(
-      DateTime(DateTime.now().year, 1, 1),
-    ).inDays;
-    return PhilosophyCore.apply(
-      _perspectives[dayOfYear % _perspectives.length],
-    );
+  String get _todayPrompt {
+    final dayOfYear = DateTime.now()
+        .difference(DateTime(DateTime.now().year, 1, 1))
+        .inDays;
+    return PhilosophyCore.apply(_prompts[dayOfYear % _prompts.length]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.primary.withOpacity(0.12),
-            AppColors.gold.withOpacity(0.06),
+            AppColors.primary.withOpacity(0.10),
+            AppColors.gold.withOpacity(0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.primary.withOpacity(0.2),
+          color: AppColors.primary.withOpacity(0.18),
           width: 1,
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '✦',
-            style: TextStyle(
-              color: AppColors.gold,
-              fontSize: 18,
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              '✦',
+              style: TextStyle(
+                color: AppColors.gold,
+                fontSize: 16,
+                height: 1.4,
+              ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              _todayPerspective,
+              _todayPrompt,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textPrimary,
                     fontStyle: FontStyle.italic,
-                    height: 1.5,
+                    height: 1.55,
                   ),
             ),
           ),
