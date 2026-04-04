@@ -20,6 +20,7 @@ import '../models/future_letter.dart';
 import '../screens/future_letter_read_screen.dart';
 import '../l10n/strings.dart';
 import '../widgets/daily_perspective_widget.dart';
+import '../services/mirror_mind_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -86,6 +87,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       context.read<SobrietyProvider>().loadFromSupabase();
+      context.read<JournalProvider>().syncPendingData();
+      context.read<FutureLetterProvider>().syncPendingData();
+      MirrorMindService().syncPending();
     }
   }
 

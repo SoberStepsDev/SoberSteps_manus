@@ -3,10 +3,26 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../models/future_letter.dart';
 import '../l10n/strings.dart';
+import '../services/encryption_service.dart';
 
-class FutureLetterReadScreen extends StatelessWidget {
+class FutureLetterReadScreen extends StatefulWidget {
   final FutureLetter letter;
   const FutureLetterReadScreen({super.key, required this.letter});
+
+  @override
+  State<FutureLetterReadScreen> createState() => _FutureLetterReadScreenState();
+}
+
+class _FutureLetterReadScreenState extends State<FutureLetterReadScreen> {
+  String? _decryptedContent;
+
+  @override
+  void initState() {
+    super.initState();
+    EncryptionService().decrypt(widget.letter.content).then((v) {
+      if (mounted) setState(() => _decryptedContent = v);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +47,16 @@ class FutureLetterReadScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.gold.withValues(alpha: 0.3)),
                 ),
-                child: Text(
-                  letter.content,
-                  style: const TextStyle(fontSize: 18, height: 1.6, color: AppColors.textPrimary),
-                ),
+                child: _decryptedContent == null
+                    ? const Center(child: CircularProgressIndicator())
+                    : Text(
+                        _decryptedContent!,
+                        style: const TextStyle(fontSize: 18, height: 1.6, color: AppColors.textPrimary),
+                      ),
               ).animate().fadeIn(delay: 300.ms, duration: 600.ms),
               const SizedBox(height: 24),
               Text(
-                'Napisany ${_formatDate(letter.createdAt)}',
+                'Napisany ${_formatDate(widget.letter.createdAt)}',
                 style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
             ],

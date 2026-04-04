@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/future_letter.dart';
 import '../constants/app_constants.dart';
 import '../services/analytics_service.dart';
+import '../services/encryption_service.dart';
 
 class FutureLetterProvider extends ChangeNotifier {
   final AnalyticsService _analytics = AnalyticsService();
@@ -84,9 +85,10 @@ class FutureLetterProvider extends ChangeNotifier {
     } catch (_) {} // non-blocking
 
     try {
+      final encContent = await EncryptionService().encrypt(content);
       await client.from('future_letters').insert({
         'user_id': user.id,
-        'content': content,
+        'content': encContent,
         'deliver_at': deliverAt.toIso8601String().split('T')[0],
       });
       final daysTilDelivery = deliverAt.difference(DateTime.now()).inDays;
@@ -132,9 +134,10 @@ class FutureLetterProvider extends ChangeNotifier {
     for (var i = 0; i < queue.length; i++) {
       try {
         final data = jsonDecode(queue[i]);
+        final encContent = await EncryptionService().encrypt(data['content'] as String);
         await client.from('future_letters').insert({
           'user_id': user.id,
-          'content': data['content'],
+          'content': encContent,
           'deliver_at': data['deliver_at'].toString().split('T')[0],
         });
         synced.add(i);
