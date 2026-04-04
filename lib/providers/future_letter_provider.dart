@@ -16,6 +16,10 @@ class FutureLetterProvider extends ChangeNotifier {
   FutureLetter? get pendingDelivery => _pendingDelivery;
   bool get loading => _loading;
 
+  /// Number of undelivered (future) letters.
+  int get activeLetterCount =>
+      _letters.where((l) => l.deliverAt.isAfter(DateTime.now())).length;
+
   Future<void> loadLetters() async {
     _loading = true;
     notifyListeners();
@@ -52,13 +56,32 @@ class FutureLetterProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String?> createLetter(String content, DateTime deliverAt) async {
+  /// Creates a letter. [isPro] controls free-tier limit (max 1 active).
+  Future<String?> createLetter(
+    String content,
+    DateTime deliverAt, {
+    bool isPro = false,
+  }) async {
     if (AppConstants.urlRegex.hasMatch(content)) return 'Linki są niedozwolone';
     if (content.length > AppConstants.maxNoteLength) return 'List jest za długi';
+
+    // Free tier: max 1 active letter
+    if (!isPro && activeLetterCount >= 1) {
+      return 'free_limit'; // caller shows PRO gate
+    }
 
     final client = Supabase.instance.client;
     final user = client.auth.currentUser;
     if (user == null) return 'Zaloguj się';
+
+    // Rate limit check
+    try {
+      final canCreate = await client.rpc(
+        'check_letter_rate_limit',
+        params: {'p_user_id': user.id},
+      );
+      if (canCreate == false) return 'Poczekaj przed napisaniem kolejnego listu';
+    } catch (_) {} // non-blocking
 
     try {
       await client.from('future_letters').insert({
@@ -73,6 +96,21 @@ class FutureLetterProvider extends ChangeNotifier {
     } catch (e) {
       await _saveToOfflineQueue(content, deliverAt);
       return 'offline';
+    }
+  }
+
+  Future<String?> deleteLetter(String letterId) async {
+    try {
+      await Supabase.instance.client
+          .from('future_letters')
+          .delete()
+          .eq('id', letterId);
+      _letters.removeWhere((l) => l.id == letterId);
+      _checkDelivery();
+      notifyListeners();
+      return null;
+    } catch (e) {
+      return 'Nie udało się usunąć listu';
     }
   }
 

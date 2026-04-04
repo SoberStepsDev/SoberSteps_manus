@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../constants/app_constants.dart';
 import '../providers/future_letter_provider.dart';
+import '../providers/purchase_provider.dart';
 import '../l10n/strings.dart';
 
 class FutureLetterWriteScreen extends StatefulWidget {
@@ -99,11 +100,20 @@ class _FutureLetterWriteScreenState extends State<FutureLetterWriteScreen> {
       return;
     }
 
+    final isPro = context.read<PurchaseProvider>().isPro;
     setState(() => _saving = true);
-    final result = await context.read<FutureLetterProvider>().createLetter(content, _deliverAt!);
+    final result = await context.read<FutureLetterProvider>().createLetter(
+      content,
+      _deliverAt!,
+      isPro: isPro,
+    );
     setState(() => _saving = false);
 
     if (!mounted) return;
+    if (result == 'free_limit') {
+      Navigator.of(context).pushNamed('/paywall', arguments: 'letter_free_limit');
+      return;
+    }
     if (result == 'offline') {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.t(context, 'savedLocally'))));
       Navigator.pop(context);
