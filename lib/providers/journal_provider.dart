@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../models/journal_entry.dart';
 import '../services/analytics_service.dart';
+import '../services/mirror_mind_service.dart';
 
 class JournalProvider extends ChangeNotifier {
   final AnalyticsService _analytics = AnalyticsService();
@@ -34,6 +35,19 @@ class JournalProvider extends ChangeNotifier {
   bool get loading => _loading;
   int get consecutiveCheckins => _consecutiveCheckins;
 
+  /// Load last 30 entries from SharedPreferences cache (instant, no network).
+  Future<void> loadFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('cached_journal_entries');
+    if (raw == null) return;
+    try {
+      final list = jsonDecode(raw) as List;
+      _entries = list.map((e) => JournalEntry.fromJson(e as Map<String, dynamic>)).toList();
+      _calculateConsecutive();
+      notifyListeners();
+    } catch (_) {}
+  }
+
   Future<void> loadEntries() async {
     _loading = true;
     notifyListeners();
@@ -49,6 +63,12 @@ class JournalProvider extends ChangeNotifier {
           .limit(100);
       _entries = (data as List).map((e) => JournalEntry.fromJson(e)).toList();
       _calculateConsecutive();
+      // Persist cache for offline use
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'cached_journal_entries',
+        jsonEncode(_entries.take(30).map((e) => e.toJson()).toList()),
+      );
     } catch (_) {}
     _loading = false;
     notifyListeners();
@@ -82,10 +102,17 @@ class JournalProvider extends ChangeNotifier {
     try {
       await client.from('journal_entries').insert(entry.toJson());
       _entries.insert(0, entry);
-      _consecutiveCheckins++;
+      _calculateConsecutive();
       _analytics.track('checkin_completed', {
         'mood': mood,
         'craving_level': cravingLevel,
+        'has_note': note != null && note.isNotEmpty,
+      });
+      // MirrorMind silent capture
+      MirrorMindService.capture('checkin', {
+        'mood': mood,
+        'craving_level': cravingLevel,
+        'triggers': triggers,
         'has_note': note != null && note.isNotEmpty,
       });
       notifyListeners();
@@ -94,6 +121,32 @@ class JournalProvider extends ChangeNotifier {
       await _saveToOfflineQueue(entry);
       return 'offline';
     }
+  }
+
+  /// Delete a check-in by ID (best-effort, no offline queue for deletes).
+  Future<void> deleteEntry(String id) async {
+    _entries.removeWhere((e) => e.id == id);
+    notifyListeners();
+    try {
+      await Supabase.instance.client
+          .from('journal_entries')
+          .delete()
+          .eq('id', id);
+    } catch (_) {}
+  }
+
+  /// Update note of an existing entry.
+  Future<void> updateNote(String id, String note) async {
+    final idx = _entries.indexWhere((e) => e.id == id);
+    if (idx == -1) return;
+    _entries[idx] = _entries[idx].copyWith(note: note);
+    notifyListeners();
+    try {
+      await Supabase.instance.client
+          .from('journal_entries')
+          .update({'note': note})
+          .eq('id', id);
+    } catch (_) {}
   }
 
   Future<void> _saveToOfflineQueue(JournalEntry entry) async {

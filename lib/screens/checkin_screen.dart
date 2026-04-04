@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -161,7 +162,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
                             ? null
                             : () {
                                 HapticFeedback.lightImpact();
-                                _save();
+                                _maybeSave();
                               },
                         child: _saving
                             ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
@@ -256,6 +257,30 @@ class _CheckinScreenState extends State<CheckinScreen> {
     );
   }
 
+  /// Entry point: show Self-Compassion Filter if craving≥8 or mood≤2, then save.
+  Future<void> _maybeSave() async {
+    final needsFilter = _craving.round() >= 8 || _mood <= 2;
+    if (needsFilter) {
+      final proceed = await _showSelfCompassionFilter();
+      if (!proceed) return;
+    }
+    await _save();
+  }
+
+  /// 10-second Self-Compassion card — returns true when user taps 'Zapisz' or timer expires.
+  Future<bool> _showSelfCompassionFilter() async {
+    bool? result;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => _SelfCompassionFilterDialog(
+        onProceed: () { result = true; Navigator.of(ctx).pop(); },
+        onCancel:  () { result = false; Navigator.of(ctx).pop(); },
+      ),
+    );
+    return result ?? false;
+  }
+
   Future<void> _save() async {
     setState(() => _saving = true);
     final journal = context.read<JournalProvider>();
@@ -332,6 +357,124 @@ class _CheckinScreenState extends State<CheckinScreen> {
         ),
         actions: [ElevatedButton(onPressed: () => Navigator.pop(context), child: Text(S.t(context, 'ok')))],
       ),
+    );
+  }
+}
+
+// ─── Self-Compassion Filter Dialog ───────────────────────────────────────────
+/// Shown for 10 seconds when craving ≥ 8 or mood ≤ 2.
+/// After 10 s the timer auto-proceeds (saves the check-in).
+/// Philosophy: no moralizing — just a warm pause before recording.
+class _SelfCompassionFilterDialog extends StatefulWidget {
+  final VoidCallback onProceed;
+  final VoidCallback onCancel;
+
+  const _SelfCompassionFilterDialog({
+    required this.onProceed,
+    required this.onCancel,
+  });
+
+  @override
+  State<_SelfCompassionFilterDialog> createState() =>
+      _SelfCompassionFilterDialogState();
+}
+
+class _SelfCompassionFilterDialogState
+    extends State<_SelfCompassionFilterDialog> {
+  static const _seconds = 10;
+  int _remaining = _seconds;
+  Timer? _timer;
+
+  // 5 rotating messages — no moralizing, pure warmth
+  static const _messages = [
+    'Jesteś tu. To wystarczy.\nOddech. Jeden krok.',
+    'To, co czujesz, jest prawdziwe.\nMożesz to zapisać.',
+    'Trudne chwile też są częścią drogi.\nJesteś bezpieczny.',
+    'Nie musisz tego naprawiać teraz.\nWystarczy być.',
+    'Widzę Cię w tej chwili.\nJesteś odważny.',
+  ];
+
+  late final String _message;
+
+  @override
+  void initState() {
+    super.initState();
+    _message = _messages[DateTime.now().second % _messages.length];
+    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) { t.cancel(); return; }
+      setState(() => _remaining--);
+      if (_remaining <= 0) {
+        t.cancel();
+        widget.onProceed();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      contentPadding: const EdgeInsets.fromLTRB(28, 28, 28, 8),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Countdown ring
+          SizedBox(
+            width: 64,
+            height: 64,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CircularProgressIndicator(
+                  value: _remaining / _seconds,
+                  strokeWidth: 4,
+                  backgroundColor: AppColors.surfaceLight,
+                  valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                ),
+                Text(
+                  '$_remaining',
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            _message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 16,
+              height: 1.6,
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: widget.onCancel,
+          child: const Text(
+            'Wróć',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: widget.onProceed,
+          child: const Text('Zapisz'),
+        ),
+      ],
     );
   }
 }
