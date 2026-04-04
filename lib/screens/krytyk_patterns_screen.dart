@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
-import '../providers/purchase_provider.dart';
 import '../widgets/pro_gate_widget.dart';
 import '../services/analytics_service.dart';
 
