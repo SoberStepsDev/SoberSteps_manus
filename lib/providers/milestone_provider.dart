@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/milestone.dart';
 import '../services/analytics_service.dart';
+import '../services/mirror_mind_service.dart';
 
 class MilestoneProvider extends ChangeNotifier {
   final AnalyticsService _analytics = AnalyticsService();
@@ -55,6 +56,7 @@ class MilestoneProvider extends ChangeNotifier {
         'days': days,
       });
       _analytics.track('milestone_celebrate', {'days': days});
+      MirrorMindService().onMilestone(days: days);
       await loadMilestones();
     } catch (_) {}
   }

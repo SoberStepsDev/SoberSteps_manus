@@ -109,13 +109,12 @@ class JournalProvider extends ChangeNotifier {
         'craving_level': cravingLevel,
         'has_note': note != null && note.isNotEmpty,
       });
-      // MirrorMind silent capture
-      MirrorMindService.capture('checkin', {
-        'mood': mood,
-        'craving_level': cravingLevel,
-        'triggers': triggers,
-        'has_note': note != null && note.isNotEmpty,
-      });
+      // MirrorMind silent capture (craving≥7 triggers pattern capture)
+      MirrorMindService().onCheckin(
+        mood: mood,
+        craving: cravingLevel,
+        triggers: triggers,
+      );
       // OneSignal custom tags for server-side segmentation (notify_users)
       NotificationService().setCheckinTags(
         daysSober: 0, // SobrietyProvider owns days_sober tag

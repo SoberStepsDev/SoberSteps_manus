@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/three_am_post.dart';
 import '../services/analytics_service.dart';
+import '../services/mirror_mind_service.dart';
 
 class ThreeAmProvider extends ChangeNotifier {
   final AnalyticsService _analytics = AnalyticsService();
@@ -115,6 +116,7 @@ class ThreeAmProvider extends ChangeNotifier {
           .eq('id', id);
       _myActivePostId = null;
       _analytics.track('three_am_wall_resolved');
+      MirrorMindService().onThreeAmResolved(outcomeText: outcomeText);
       notifyListeners();
       await loadPosts();
       return null;
