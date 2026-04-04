@@ -118,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onTap: () => launchUrl(Uri.parse('tel:1-800-662-4357')),
             child: Container(
               width: double.infinity,
-              color: AppColors.crisisRed.withOpacity(0.12),
+              color: AppColors.crisisRed.withValues(alpha: 0.12),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: const Row(children: [
                 Icon(Icons.phone, color: AppColors.crisisRed, size: 16),
@@ -228,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-                color: AppColors.gold.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
+                color: AppColors.gold.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
             child: const Text('Recovery+',
                 style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700, fontSize: 12)),
           ),
@@ -248,7 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-                color: AppColors.gold.withOpacity(0.15), borderRadius: BorderRadius.circular(6)),
+                color: AppColors.gold.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(6)),
             child: Text(badge,
                 style: const TextStyle(color: AppColors.gold, fontSize: 10, fontWeight: FontWeight.w700)),
           ),

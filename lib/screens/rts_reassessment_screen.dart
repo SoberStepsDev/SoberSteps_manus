@@ -124,7 +124,7 @@ class _RTSReassessmentScreenState extends State<RTSReassessmentScreen> {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: _answers[i] == oi ? AppColors.primary.withOpacity(0.15) : AppColors.surface,
+                      color: _answers[i] == oi ? AppColors.primary.withValues(alpha: 0.15) : AppColors.surface,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: _answers[i] == oi ? AppColors.primary : Colors.transparent),
                     ),
@@ -205,8 +205,8 @@ class _DeltaBar extends StatelessWidget {
       height: 12,
       child: Stack(children: [
         Container(decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(6))),
-        FractionallySizedBox(widthFactor: bPct.clamp(0.0, 1.0), child: Container(decoration: BoxDecoration(color: AppColors.textSecondary.withOpacity(0.4), borderRadius: BorderRadius.circular(6)))),
-        FractionallySizedBox(widthFactor: cPct.clamp(0.0, 1.0), child: Container(decoration: BoxDecoration(color: current >= baseline ? Colors.greenAccent.withOpacity(0.7) : Colors.redAccent.withOpacity(0.7), borderRadius: BorderRadius.circular(6)))),
+        FractionallySizedBox(widthFactor: bPct.clamp(0.0, 1.0), child: Container(decoration: BoxDecoration(color: AppColors.textSecondary.withValues(alpha: 0.4), borderRadius: BorderRadius.circular(6)))),
+        FractionallySizedBox(widthFactor: cPct.clamp(0.0, 1.0), child: Container(decoration: BoxDecoration(color: current >= baseline ? Colors.greenAccent.withValues(alpha: 0.7) : Colors.redAccent.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(6)))),
       ]),
     );
   }

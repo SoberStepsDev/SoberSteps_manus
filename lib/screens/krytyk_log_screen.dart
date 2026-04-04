@@ -143,7 +143,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
                           return Dismissible(
                             key: Key(e['id']),
                             direction: DismissDirection.endToStart,
-                            background: Container(color: Colors.red.withOpacity(0.2), alignment: Alignment.centerRight, padding: const EdgeInsets.only(right: 16), child: const Icon(Icons.delete_outline, color: Colors.red)),
+                            background: Container(color: Colors.red.withValues(alpha: 0.2), alignment: Alignment.centerRight, padding: const EdgeInsets.only(right: 16), child: const Icon(Icons.delete_outline, color: Colors.red)),
                             onDismissed: (_) => _delete(e['id']),
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 8),

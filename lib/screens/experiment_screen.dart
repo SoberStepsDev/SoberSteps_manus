@@ -187,9 +187,9 @@ class _DayChip extends StatelessWidget {
       margin: const EdgeInsets.only(right: 6),
       padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: result != null ? AppColors.primary.withOpacity(0.2) : AppColors.background,
+        color: result != null ? AppColors.primary.withValues(alpha: 0.2) : AppColors.background,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: result != null ? AppColors.primary : AppColors.textSecondary.withOpacity(0.3)),
+        border: Border.all(color: result != null ? AppColors.primary : AppColors.textSecondary.withValues(alpha: 0.3)),
       ),
       child: Center(child: Text('Dzień ${day.substring(3)}', style: TextStyle(color: result != null ? AppColors.primary : AppColors.textSecondary, fontSize: 12))),
     ),

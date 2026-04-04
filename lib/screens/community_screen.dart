@@ -165,7 +165,7 @@ class _PostsList extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.gold.withOpacity(0.4)),
+                  border: Border.all(color: AppColors.gold.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   children: [

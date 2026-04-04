@@ -79,7 +79,6 @@ class _KrytykPatternsScreenState extends State<KrytykPatternsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isPro = context.watch<PurchaseProvider>().isPro;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -140,10 +139,10 @@ class _HourlyHeatmap extends StatelessWidget {
           child: Container(
             width: 28, height: 28,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1 + intensity * 0.85),
+              color: AppColors.primary.withValues(alpha: 0.1 + intensity * 0.85),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Center(child: Text('$h', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 9))),
+            child: Center(child: Text('$h', style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 9))),
           ),
         );
       }),
@@ -169,7 +168,7 @@ class _DailyTrend extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Container(height: h, decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.7), borderRadius: BorderRadius.circular(4))),
+                  Container(height: h, decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(4))),
                   const SizedBox(height: 2),
                   Text('${14 - i}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 8)),
                 ],

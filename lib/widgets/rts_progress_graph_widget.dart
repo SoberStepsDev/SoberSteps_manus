@@ -40,7 +40,6 @@ class _RTSProgressGraphWidgetState extends State<RTSProgressGraphWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final isPro = context.watch<PurchaseProvider>().isPro;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(16)),
@@ -117,7 +116,7 @@ class _ChartPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     final dotPaint = Paint()..color = AppColors.primary..style = PaintingStyle.fill;
     final fillPaint = Paint()
-      ..color = AppColors.primary.withOpacity(0.1)
+      ..color = AppColors.primary.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     final chartH = size.height - 20;

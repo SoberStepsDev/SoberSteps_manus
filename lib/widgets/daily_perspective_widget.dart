@@ -47,15 +47,15 @@ class DailyPerspectiveWidget extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.primary.withOpacity(0.10),
-            AppColors.gold.withOpacity(0.05),
+            AppColors.primary.withValues(alpha: 0.10),
+            AppColors.gold.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.primary.withOpacity(0.18),
+          color: AppColors.primary.withValues(alpha: 0.18),
           width: 1,
         ),
       ),

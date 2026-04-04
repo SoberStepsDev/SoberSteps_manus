@@ -48,7 +48,7 @@ class ProGateWidget extends StatelessWidget {
               arguments: trigger,
             ),
             child: Container(
-              color: AppColors.background.withOpacity(0.55),
+              color: AppColors.background.withValues(alpha: 0.55),
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

@@ -138,7 +138,7 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
 
     showDialog(
       context: context,
-      barrierColor: AppColors.background.withOpacity(0.92),
+      barrierColor: AppColors.background.withValues(alpha: 0.92),
       builder: (ctx) => _CelebrationDialog(data: data, isPremium: isPremium),
     );
   }
@@ -189,7 +189,7 @@ class _MilestoneCard extends StatelessWidget {
                 data.emoji,
                 style: TextStyle(
                   fontSize: 32,
-                  color: achieved ? null : AppColors.textPrimary.withOpacity(0.3),
+                  color: achieved ? null : AppColors.textPrimary.withValues(alpha: 0.3),
                 ),
               ),
               const SizedBox(width: 16),
@@ -334,9 +334,9 @@ class _CelebrationDialogState extends State<_CelebrationDialog> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.08),
+                      color: AppColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
                     ),
                     child: Column(
                       children: [
