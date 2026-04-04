@@ -12,16 +12,26 @@ class CommunityProvider extends ChangeNotifier {
   List<CommunityPost> postsForCategory(String cat) => _posts[cat] ?? [];
   bool get loading => _loading;
 
-  Future<void> loadPosts(String category) async {
+  /// Loads posts for [category].
+  /// Free users: only last 7 days. PRO users: full history.
+  Future<void> loadPosts(String category, {bool isPro = false}) async {
     _loading = true;
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     try {
       final client = Supabase.instance.client;
-      final data = await client
+      var query = client
           .from('community_posts')
           .select()
           .eq('category', category)
-          .eq('is_flagged', false)
+          .eq('is_flagged', false);
+
+      // Free tier: restrict to last 7 days
+      if (!isPro) {
+        final cutoff = DateTime.now().subtract(const Duration(days: 7)).toIso8601String();
+        query = query.gte('created_at', cutoff);
+      }
+
+      final data = await query
           .order('created_at', ascending: false)
           .limit(50);
       _posts[category] = (data as List).map((e) => CommunityPost.fromJson(e)).toList();

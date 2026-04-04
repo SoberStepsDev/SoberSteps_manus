@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../app/theme.dart';
 import '../constants/app_constants.dart';
 import '../providers/community_provider.dart';
+import '../providers/purchase_provider.dart';
 import '../models/community_post.dart';
 import '../l10n/strings.dart';
 
@@ -26,10 +27,15 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        context.read<CommunityProvider>().loadPosts(_categories[_tabController.index]);
+        final isPro = context.read<PurchaseProvider>().isPro;
+        context.read<CommunityProvider>().loadPosts(
+          _categories[_tabController.index],
+          isPro: isPro,
+        );
       }
     });
-    context.read<CommunityProvider>().loadPosts(_categories[0]);
+    final isPro = context.read<PurchaseProvider>().isPro;
+    context.read<CommunityProvider>().loadPosts(_categories[0], isPro: isPro);
   }
 
   @override
@@ -137,17 +143,48 @@ class _PostsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CommunityProvider>();
+    final isPro = context.watch<PurchaseProvider>().isPro;
     final posts = provider.postsForCategory(category);
 
     if (provider.loading) return const Center(child: CircularProgressIndicator());
     if (posts.isEmpty) return Center(child: Text(S.t(context, 'noPosts'), style: const TextStyle(color: AppColors.textSecondary)));
 
     return RefreshIndicator(
-      onRefresh: () => provider.loadPosts(category),
+      onRefresh: () => provider.loadPosts(category, isPro: isPro),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: posts.length,
-        itemBuilder: (context, i) => _PostCard(post: posts[i]),
+        itemCount: posts.length + (isPro ? 0 : 1),
+        itemBuilder: (context, i) {
+          // Last item for free users: PRO history upsell banner
+          if (!isPro && i == posts.length) {
+            return GestureDetector(
+              onTap: () => Navigator.of(context).pushNamed('/paywall', arguments: 'community_history'),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12, top: 4),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.gold.withOpacity(0.4)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.lock_rounded, color: AppColors.gold, size: 20),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Odblokuj pełną historię w Recovery+',
+                        style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: AppColors.gold, size: 20),
+                  ],
+                ),
+              ),
+            );
+          }
+          return _PostCard(post: posts[i]);
+        },
       ),
     );
   }
