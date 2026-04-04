@@ -11,6 +11,9 @@ import '../providers/auth_provider.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/return_to_self_provider.dart';
 import '../services/analytics_service.dart';
+import '../widgets/rts_daily_mirror_widget.dart';
+import '../widgets/rts_progress_graph_widget.dart';
+import 'rts_reassessment_screen.dart';
 
 /// Philosophy applied: 30-day path as curiosity journey, not challenge
 class ReturnToSelfScreen extends StatefulWidget {
@@ -260,9 +263,19 @@ class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
                     desc: S.t(context, 'wallOfStrengthDesc'),
                     onTap: () => Navigator.pushNamed(context, '/wall-of-strength'),
                   ),
+                  const SizedBox(height: 24),
+                  const RTSDailyMirrorWidget(),
+                  const SizedBox(height: 16),
+                  const RTSProgressGraphWidget(),
+                  const SizedBox(height: 16),
+                  _ToolCard(
+                    icon: Icons.refresh_rounded,
+                    label: 'Ponowna Ocena RTS',
+                    desc: 'Sprawdź swój postęp po 30 dniach.',
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RTSReassessmentScreen())),
+                  ),
                   ],
-                ],
-              ),
+                ],     ),
       ),
     );
   }
