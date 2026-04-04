@@ -34,6 +34,10 @@ import '../screens/three_am_screen.dart';
 import '../screens/trigger_tracker_screen.dart';
 import '../screens/wall_of_strength_screen.dart';
 import '../screens/self_compassion_screen.dart';
+import '../screens/krytyk_log_screen.dart';
+import '../screens/experiment_screen.dart';
+import '../screens/x_marker_screen.dart';
+import '../screens/krytyk_patterns_screen.dart';
 import '../screens/crash_log_screen.dart';
 import '../screens/rts_diagnostic_screen.dart';
 
@@ -79,6 +83,10 @@ Map<String, WidgetBuilder> buildAppRoutes() {
     '/wall-of-strength': (_) => const WallOfStrengthScreen(),
     '/mirror-moment': (_) => const MirrorMomentScreen(),
     '/self-compassion': (_) => const SelfCompassionScreen(),
+    '/inner-critic-log': (_) => const KrytykLogScreen(),
+    '/experiment': (_) => const ExperimentScreen(),
+    '/x-marker': (_) => const XMarkerScreen(),
+    '/krytyk-patterns': (_) => const KrytykPatternsScreen(),
     '/crash-log': (_) => const CrashLogScreen(),
     '/rts-diagnostic': (_) => const RtsDiagnosticScreen(),
   };
