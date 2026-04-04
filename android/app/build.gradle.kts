@@ -30,8 +30,8 @@ android {
 
     defaultConfig {
         applicationId = "com.sobersteps.app"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 21
+        targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
