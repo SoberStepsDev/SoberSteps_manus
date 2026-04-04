@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/supabase_auth_service.dart';
 import '../services/analytics_service.dart';
+import '../services/notification_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final SupabaseAuthService _authService = SupabaseAuthService();
@@ -73,6 +74,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    _analytics.track(AnalyticsService.eSignOut);
+    _analytics.clearUser();
+    NotificationService().logout();
     await _authService.signOut();
     _user = null;
     notifyListeners();
