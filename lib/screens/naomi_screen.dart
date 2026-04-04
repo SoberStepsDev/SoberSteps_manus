@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../providers/naomi_provider.dart';
+import '../providers/purchase_provider.dart';
 import '../l10n/strings.dart';
 import 'paywall_screen.dart';
 import '../services/analytics_service.dart';
@@ -79,7 +80,47 @@ class _NaomiScreenState extends State<NaomiScreen> {
   @override
   Widget build(BuildContext context) {
     final naomi = context.watch<NaomiProvider>();
+    final isPro = context.watch<PurchaseProvider>().isPro;
     final question = naomi.todayQuestion;
+
+    // PRO gate — Naomi requires active Recovery+ subscription
+    if (!isPro) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(title: Text(S.t(context, 'naomi')), backgroundColor: AppColors.background),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('\u{1F9E0}', style: TextStyle(fontSize: 52)),
+                const SizedBox(height: 16),
+                const Text('Naomi jest dostępna w Recovery+',
+                    style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w700),
+                    textAlign: TextAlign.center),
+                const SizedBox(height: 8),
+                const Text('Twój AI towarzysz — pyta, nie ocenia.',
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                    textAlign: TextAlign.center),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/paywall', arguments: 'naomi_gate'),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(vertical: 14)),
+                    child: const Text('Odkryj Recovery+', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
