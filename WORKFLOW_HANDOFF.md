@@ -1,6 +1,6 @@
 # SoberSteps — Faza 1 Handoff dla Cursor AI
-## Status: ✅ GOTOWE DO FAZY 2 (Flutter)
-Wygenerowano: 2026-04-04
+## Status: 🔄 FAZA 2 W TOKU — Sesje 1–3 ukończone
+Wygenerowano: 2026-04-04 | Ostatnia aktualizacja: 2026-04-04 (sesje 2–3 Cursor AI)
 
 ---
 
@@ -205,14 +205,53 @@ flutter run \
 
 ---
 
-## 7. Znane Problemy / Uwagi
+## 7. Stan Fazy 2 (Cursor AI)
+
+| Sesja | Status | Zakres |
+|---|---|---|
+| Sesja 1 (Manus) | ✅ | Fundament: struktura, pubspec, theme, routes, DailyPerspectiveWidget, MirrorMindService, SelfCompassionScreen |
+| Sesja 2 (Cursor) | ✅ | Onboarding kroki 1–4: Disclaimer+AgeGate, Email Gate, RTS Assessment, Substancje |
+| Sesja 3 (Cursor) | ✅ | Onboarding kroki 5–8: Data trzeźwości, Godzina przypomnienia, Kontakt alarmowy, Auth (anon→email/magic link) |
+| Sesja 4 | ⏳ | HomeScreen + Check-in + Milestones |
+| Sesje 5–20 | ⏳ | Pozostałe moduły |
+
+### ⚠️ WYMAGANA AKCJA RĘCZNA — Anonymous Auth
+
+**Supabase Dashboard → Authentication → Providers → Anonymous → Enable**
+
+Bez tego `signInAnonymously()` w kroku 3 onboardingu zwróci błąd 400.
+URL: `https://supabase.com/dashboard/project/kznhbcwozpjflewlzxnu/auth/providers`
+
+### Konfiguracja Magic Link (Sesja 3)
+
+```
+Supabase Dashboard → Auth → URL Configuration → Redirect URLs:
+Dodaj: io.supabase.flutter://login-callback/
+```
+
+Android `AndroidManifest.xml` — wymagany intent filter:
+```xml
+<intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="io.supabase.flutter" android:host="login-callback" />
+</intent-filter>
+```
+
+---
+
+## 8. Znane Problemy / Uwagi
 
 | Problem | Status | Akcja |
 |---|---|---|
 | `notify_users` używał `user_profiles` (nieistniejąca tabela) | ✅ Naprawiono — wdrożono v38 | — |
 | Entitlement `pro` (lowercase) nie istniał | ✅ Naprawiono — `entlcd2ea18144` | — |
 | Package name `com.soberstepsod.soberstepsod` w RevenueCat | ⚠️ Wymaga ręcznej zmiany | Dashboard → Apps → Edit |
-| `DailyPerspectiveWidget` brak w kodzie | ⚠️ Do implementacji w Fazie 2 | Faza 2, Sesja 4 |
-| `SelfCompassionScreen` brak w kodzie | ⚠️ Do implementacji w Fazie 2 | Faza 2, Sesja 14 |
-| `MirrorMindService` brak hooków | ⚠️ Do implementacji w Fazie 2 | Faza 2, Sesja 18 |
+| `DailyPerspectiveWidget` brak w kodzie | ✅ Zaimplementowano (Manus S1) | `lib/widgets/daily_perspective_widget.dart` |
+| `SelfCompassionScreen` brak w kodzie | ✅ Zaimplementowano (Manus S1) | `lib/screens/self_compassion_screen.dart` |
+| `MirrorMindService` brak hooków | ✅ Zaimplementowano (Manus S1) | `lib/services/mirror_mind_service.dart` |
+| Anonymous auth wyłączone | ⚠️ Wymaga ręcznego włączenia | Dashboard → Auth → Providers → Anonymous |
+| RLS `profiles_insert_own` nie obejmował anon | ✅ Naprawiono migracją 000002 | — |
+| `email_leads` INSERT wymagał auth | ✅ Naprawiono migracją 000002 | Teraz działa bez auth (krok 2 onboardingu) |
 | Leaked Password Protection wyłączone | ⚠️ Włącz w Supabase Auth Settings | Dashboard → Auth → Security |
