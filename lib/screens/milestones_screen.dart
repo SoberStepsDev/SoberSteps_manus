@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:lottie/lottie.dart';
 import '../app/theme.dart';
 import '../providers/milestone_provider.dart';
 import '../l10n/strings.dart';
@@ -89,61 +92,47 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
           final data = MilestoneData.all[i];
           final achieved = milestoneProvider.isAchieved(data.days) || daysSober >= data.days;
           final isNext = !achieved && (i == 0 || daysSober >= MilestoneData.all[i - 1].days);
-          return _MilestoneCard(data: data, achieved: achieved, isNext: isNext, daysSober: daysSober);
+          final prevDays = i > 0 ? MilestoneData.all[i - 1].days : 0;
+          return _MilestoneCard(
+            data: data,
+            achieved: achieved,
+            isNext: isNext,
+            daysSober: daysSober,
+            prevMilestoneDays: prevDays,
+          );
         },
       ),
     );
   }
 
+  /// Multi-step celebration sequence:
+  /// 1. Przyciemnienie (barrierColor 0.92)
+  /// 2. Zoom liczby (TweenAnimationBuilder, 600ms elasticOut)
+  /// 3. Lottie confetti (800ms delay)
+  /// 4. Karta filozoficzna (message + subMessage, fade 800ms)
+  /// 5. TTS audio
   void _showCelebration(int days) {
     final data = MilestoneData.forDays(days);
     if (data == null) return;
     final isPremium = context.read<PurchaseProvider>().isPremium;
     context.read<MilestoneProvider>().recordMilestone(days);
     AnalyticsService().track('milestone_celebrate', {'days': days});
-    TtsService().speakMilestone(
-      isPremium: isPremium,
-      days: days,
-      freeFallback: data.message,
-    );
+    HapticFeedback.heavyImpact();
+
+    // TTS fires after 800ms (after zoom + confetti start)
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+      TtsService().speakMilestone(
+        isPremium: isPremium,
+        days: days,
+        freeFallback: data.message,
+      );
+    });
 
     showDialog(
       context: context,
-      barrierColor: AppColors.background.withValues(alpha: 0.85),
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(data.emoji, style: const TextStyle(fontSize: 64))
-                .animate()
-                .scale(begin: const Offset(0.3, 0.3), end: const Offset(1.0, 1.0), duration: 600.ms, curve: Curves.elasticOut),
-            const SizedBox(height: 16),
-            Text('${data.days} ${S.t(context, 'days')}!',
-                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: AppColors.gold)),
-            const SizedBox(height: 8),
-            Text(data.message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, color: AppColors.textPrimary)),
-            Text(data.subMessage, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-          ],
-        ),
-        actions: [
-          if (data.shareText.isNotEmpty)
-            TextButton.icon(
-              icon: const Icon(Icons.share),
-              label: Text(S.t(context, 'quickShare')),
-              onPressed: () => Share.share(data.shareText),
-            ),
-          if (!isPremium)
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.of(context).pushNamed('/paywall');
-              },
-              child: Text(S.t(context, 'unlockRecoveryPlus'), style: const TextStyle(color: AppColors.gold)),
-            ),
-          ElevatedButton(onPressed: () => Navigator.pop(context), child: Text(S.t(context, 'ok'))),
-        ],
-      ),
+      barrierColor: AppColors.background.withOpacity(0.92),
+      builder: (ctx) => _CelebrationDialog(data: data, isPremium: isPremium),
     );
   }
 }
@@ -153,11 +142,26 @@ class _MilestoneCard extends StatelessWidget {
   final bool achieved;
   final bool isNext;
   final int daysSober;
+  final int? prevMilestoneDays;
 
-  const _MilestoneCard({required this.data, required this.achieved, required this.isNext, required this.daysSober});
+  const _MilestoneCard({
+    required this.data,
+    required this.achieved,
+    required this.isNext,
+    required this.daysSober,
+    this.prevMilestoneDays,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Progress for the 'next' card
+    double? progress;
+    if (isNext) {
+      final prev = prevMilestoneDays ?? 0;
+      final range = data.days - prev;
+      progress = range > 0 ? ((daysSober - prev) / range).clamp(0.0, 1.0) : 0.0;
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -169,29 +173,221 @@ class _MilestoneCard extends StatelessWidget {
           width: achieved ? 2 : 1,
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(data.emoji, style: TextStyle(fontSize: 32, color: achieved ? null : AppColors.textPrimary.withValues(alpha: 0.3))),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            children: [
+              Text(
+                data.emoji,
+                style: TextStyle(
+                  fontSize: 32,
+                  color: achieved ? null : AppColors.textPrimary.withOpacity(0.3),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data.title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: achieved ? AppColors.gold : AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    if (achieved)
+                      const Text(
+                        'Punkt widokowy osiągnięty ✔',
+                        style: TextStyle(color: AppColors.success, fontSize: 12),
+                      )
+                    else if (isNext)
+                      Text(
+                        'Za zakrętem: ${data.days - daysSober} dni',
+                        style: const TextStyle(color: AppColors.primary, fontSize: 12),
+                      )
+                    else
+                      Text(
+                        S.t(context, 'locked'),
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                      ),
+                  ],
+                ),
+              ),
+              if (achieved)
+                const Icon(Icons.check_circle, color: AppColors.gold)
+              else if (!achieved && !isNext)
+                const Icon(Icons.lock, color: AppColors.textSecondary, size: 20),
+            ],
+          ),
+          // Progress bar for 'next' milestone
+          if (isNext && progress != null) ...[  
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 6,
+                backgroundColor: AppColors.surfaceLight,
+                valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Celebration Dialog ────────────────────────────────────────────────────────────
+class _CelebrationDialog extends StatefulWidget {
+  final MilestoneData data;
+  final bool isPremium;
+  const _CelebrationDialog({required this.data, required this.isPremium});
+
+  @override
+  State<_CelebrationDialog> createState() => _CelebrationDialogState();
+}
+
+class _CelebrationDialogState extends State<_CelebrationDialog> {
+  bool _showPhilosophy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Karta filozoficzna pojawia się po 800ms (po zoom + confetti)
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (mounted) setState(() => _showPhilosophy = true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final data = widget.data;
+    return Dialog(
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Step 1: Zoom emoji
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.2, end: 1.0),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.elasticOut,
+              builder: (_, v, child) => Transform.scale(scale: v, child: child),
+              child: Text(data.emoji, style: const TextStyle(fontSize: 72)),
+            ),
+            const SizedBox(height: 8),
+            // Step 2: Animated days number
+            TweenAnimationBuilder<int>(
+              tween: IntTween(begin: 0, end: data.days),
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.easeOutCubic,
+              builder: (_, v, __) => Text(
+                '$v',
+                style: const TextStyle(
+                  fontSize: 56,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.gold,
+                  height: 1,
+                ),
+              ),
+            ),
+            Text(
+              data.title,
+              style: const TextStyle(
+                fontSize: 16,
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Step 3: Lottie confetti (network fallback: emoji burst)
+            SizedBox(
+              height: 80,
+              child: Lottie.network(
+                'https://assets10.lottiefiles.com/packages/lf20_touohxv0.json',
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Text('🎉🎊✨', style: TextStyle(fontSize: 36)),
+              ),
+            ),
+            // Step 4: Karta filozoficzna (fade in po 800ms)
+            AnimatedOpacity(
+              opacity: _showPhilosophy ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 800),
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          data.message,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: AppColors.textPrimary,
+                            fontStyle: FontStyle.italic,
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          data.subMessage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Actions
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(data.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: achieved ? AppColors.gold : AppColors.textPrimary)),
-                if (achieved)
-                  Text(S.t(context, 'achieved'), style: const TextStyle(color: AppColors.success, fontSize: 12))
-                else if (isNext)
-                  Text('${data.days - daysSober} ${S.t(context, 'daysToGo')}', style: const TextStyle(color: AppColors.primary, fontSize: 12))
-                else
-                  Text(S.t(context, 'locked'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                if (data.shareText.isNotEmpty)
+                  TextButton.icon(
+                    icon: const Icon(Icons.share, size: 18),
+                    label: const Text('Udostępnij'),
+                    onPressed: () => Share.share(data.shareText),
+                  ),
+                if (!widget.isPremium)
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).pushNamed('/paywall');
+                    },
+                    child: const Text(
+                      'Recovery+',
+                      style: TextStyle(color: AppColors.gold),
+                    ),
+                  ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
               ],
             ),
-          ),
-          if (achieved)
-            const Icon(Icons.check_circle, color: AppColors.gold)
-          else if (!achieved && !isNext)
-            const Icon(Icons.lock, color: AppColors.textSecondary, size: 20),
-        ],
+          ],
+        ),
       ),
     );
   }
