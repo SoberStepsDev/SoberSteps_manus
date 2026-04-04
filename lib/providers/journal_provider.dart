@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../models/journal_entry.dart';
 import '../services/analytics_service.dart';
 import '../services/mirror_mind_service.dart';
+import '../services/notification_service.dart';
 
 class JournalProvider extends ChangeNotifier {
   final AnalyticsService _analytics = AnalyticsService();
@@ -115,6 +116,14 @@ class JournalProvider extends ChangeNotifier {
         'triggers': triggers,
         'has_note': note != null && note.isNotEmpty,
       });
+      // OneSignal custom tags for server-side segmentation (notify_users)
+      NotificationService().setCheckinTags(
+        daysSober: 0, // SobrietyProvider owns days_sober tag
+        moodScore: mood,
+        cravingScore: cravingLevel,
+        streak: _consecutiveCheckins,
+        isPro: false, // PurchaseProvider owns is_pro tag
+      );
       notifyListeners();
       return null;
     } catch (e) {
