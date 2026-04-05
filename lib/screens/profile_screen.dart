@@ -174,9 +174,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _tile(context, Icons.person_outline, S.t(context, 'aboutCreator'),
                     () => _showAboutCreator(context)),
                 _tile(context, Icons.description_outlined, S.t(context, 'terms'),
-                    () => launchUrl(Uri.parse(AppConstants.termsUrl))),
+                    () => Navigator.pushNamed(context, '/terms')),
                 _tile(context, Icons.privacy_tip_outlined, S.t(context, 'privacy'),
-                    () => launchUrl(Uri.parse(AppConstants.privacyUrl))),
+                    () => Navigator.pushNamed(context, '/privacy')),
                 _tile(context, Icons.email_outlined, S.t(context, 'contactEmail'),
                     () => launchUrl(Uri.parse('mailto:${AppConstants.contactEmail}'))),
                 if (auth.isLoggedIn) ...[
