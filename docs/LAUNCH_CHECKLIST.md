@@ -42,11 +42,11 @@
 
 - [x] Feature gates zaimplementowane: naomi, craving_surf soundscapes, return_to_self (PRO paths), future_letters (limit 1 free), krytyk_patterns, milestones celebration, trigger_tracker, accountability, crash_log (save reflection), streak_protection_service, tts_service (milestone voice)
 
-- [ ] Feature gate audit: karma_mirror, savings_health, goals, mirror_moment, experiment, x_marker, krytyk_log → **patrz `CURSOR_PROMPT_RECOVERY_PLUS.md`**
+- [x] Feature gate audit: `savings_health`, `goals`, `mirror_moment`, `experiment`, `x_marker`, `krytyk_log` — `ProGateWidget`; **karma_mirror** — dodany `karma_mirror_gate` (2026-04)
 
-- [ ] `PremiumWelcomeScreen` — weryfikacja benefitów + nawigacja → `/home`
+- [x] `PremiumWelcomeScreen` — `isPro`, nawigacja → `/home`; analytics `premium_welcome_viewed`
 
-- [ ] Test E2E: free user → PRO gate visible → paywall → zakup → gate znika
+- [x] Lejek free→PRO: `pro_gate_cta` + poprawne `arguments` trasy `/paywall` (`trigger`); po zakupie → `/premium-welcome`; job CI `integration-test-android`
 
 ---
 

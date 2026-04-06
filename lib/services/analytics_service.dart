@@ -1,9 +1,10 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Thin analytics wrapper.
-/// In development: prints to console.
-/// In production: swap debugPrint calls for Firebase Analytics / Amplitude SDK.
+/// Analytics: [debugPrint] in all builds + Firebase Analytics when [Firebase] is initialized.
+/// Event/parameter names and values are sanitized for GA4 limits; no free-form health text.
 class AnalyticsService {
   static final AnalyticsService _instance = AnalyticsService._();
   factory AnalyticsService() => _instance;
@@ -65,30 +66,52 @@ class AnalyticsService {
   static const eCrashLogSaved = 'crash_log_saved';
   static const eWallOfStrengthOpened = 'wall_of_strength_opened';
   static const eProfileOpened = 'profile_opened';
+  static const eProGateCta = 'pro_gate_cta';
+  static const ePremiumWelcomeViewed = 'premium_welcome_viewed';
 
-  // ─── Core methods ──────────────────────────────────────────────────────────────────────────────
+  bool get _faReady => Firebase.apps.isNotEmpty;
 
   void setUserId(String userId) {
     _userId = userId;
     debugPrint('[Analytics] setUserId $userId');
-    // TODO(launch): FirebaseAnalytics.instance.setUserId(id: userId);
+    if (!_faReady) return;
+    FirebaseAnalytics.instance
+        .setUserId(id: userId)
+        .catchError((Object e, StackTrace _) => debugPrint('[Analytics] FA setUserId: $e'));
   }
 
   void clearUser() {
     _userId = null;
     debugPrint('[Analytics] clearUser');
-    // TODO(launch): FirebaseAnalytics.instance.setUserId(id: null);
+    if (!_faReady) return;
+    FirebaseAnalytics.instance
+        .setUserId(id: null)
+        .catchError((Object e, StackTrace _) => debugPrint('[Analytics] FA clearUser: $e'));
   }
 
   void setUserProperties(Map<String, dynamic> props) {
     debugPrint('[Analytics] setUserProperties $props');
-    // TODO(launch): FirebaseAnalytics.instance.setUserProperty(...);
+    if (!_faReady) return;
+    for (final e in props.entries) {
+      final name = _gaUserPropertyName(e.key);
+      if (name == null) continue;
+      final raw = e.value?.toString() ?? '';
+      final value = raw.length > 36 ? raw.substring(0, 36) : raw;
+      FirebaseAnalytics.instance
+          .setUserProperty(name: name, value: value.isEmpty ? null : value)
+          .catchError((Object err, StackTrace _) => debugPrint('[Analytics] FA setUserProperty: $err'));
+    }
   }
 
   void track(String event, [Map<String, dynamic>? properties]) {
-    final props = {...?properties, if (_userId != null) 'user_id': _userId};
+    final props = {...?properties};
     debugPrint('[Analytics] $event $props');
-    // TODO(launch): FirebaseAnalytics.instance.logEvent(name: event, parameters: props);
+    if (!_faReady) return;
+    final name = _gaEventName(event);
+    final params = _gaParameters(props);
+    FirebaseAnalytics.instance
+        .logEvent(name: name, parameters: params)
+        .catchError((Object e, StackTrace _) => debugPrint('[Analytics] FA logEvent: $e'));
   }
 
   /// Sends crash/feedback log to Supabase Edge Function crash-log-feedback.
@@ -104,5 +127,56 @@ class AnalyticsService {
         },
       );
     } catch (_) {}
+  }
+
+  static String _gaEventName(String raw) {
+    var s = raw.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+    if (s.isEmpty) s = 'event';
+    if (RegExp(r'^[0-9]').hasMatch(s)) s = 'e_$s';
+    if (s.length > 40) s = s.substring(0, 40);
+    return s;
+  }
+
+  static Map<String, Object>? _gaParameters(Map<String, dynamic> raw) {
+    if (raw.isEmpty) return null;
+    final out = <String, Object>{};
+    var n = 0;
+    for (final e in raw.entries) {
+      if (n >= 25) break;
+      final k = _gaParamKey(e.key);
+      if (k == null) continue;
+      final v = e.value;
+      if (v == null) continue;
+      if (v is num) {
+        out[k] = v;
+      } else if (v is bool) {
+        out[k] = v ? 1 : 0;
+      } else {
+        final s = v.toString();
+        out[k] = s.length > 100 ? s.substring(0, 100) : s;
+      }
+      n++;
+    }
+    return out.isEmpty ? null : out;
+  }
+
+  static String? _gaParamKey(String raw) {
+    var s = raw.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+    if (s.isEmpty) return null;
+    if (RegExp(r'^[0-9]').hasMatch(s)) s = 'p_$s';
+    final lower = s.toLowerCase();
+    if (lower.startsWith('firebase_') || lower.startsWith('google_') || lower.startsWith('ga_')) {
+      return null;
+    }
+    if (s.length > 40) s = s.substring(0, 40);
+    return s;
+  }
+
+  static String? _gaUserPropertyName(String raw) {
+    var s = raw.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+    if (s.isEmpty) return null;
+    if (RegExp(r'^[0-9]').hasMatch(s)) s = 'u_$s';
+    if (s.length > 24) s = s.substring(0, 24);
+    return s;
   }
 }

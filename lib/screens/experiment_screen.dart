@@ -6,6 +6,7 @@ import '../app/theme.dart';
 import '../providers/purchase_provider.dart';
 import '../services/analytics_service.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
 import '../widgets/pro_gate_widget.dart';
 
 /// Self-Experiments screen — 3-day behavioral experiment.
@@ -184,7 +185,7 @@ class _ExperimentCard extends StatelessWidget {
               })),
           ]),
           const SizedBox(height: 4),
-          Text('${dt.day}.${dt.month}.${dt.year}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+          Text(LocaleDates.yMd(context, dt), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
         ],
       ),
     );

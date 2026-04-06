@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../providers/purchase_provider.dart';
+import '../services/analytics_service.dart';
 
 /// Wraps [child] with a blur overlay when user is not PRO.
 /// Tapping the overlay navigates to PaywallScreen with [trigger].
@@ -43,10 +44,10 @@ class ProGateWidget extends StatelessWidget {
         // Overlay CTA
         Positioned.fill(
           child: GestureDetector(
-            onTap: () => Navigator.of(context).pushNamed(
-              '/paywall',
-              arguments: trigger,
-            ),
+            onTap: () {
+              AnalyticsService().track(AnalyticsService.eProGateCta, {'trigger': trigger});
+              Navigator.of(context).pushNamed('/paywall', arguments: trigger);
+            },
             child: Container(
               color: AppColors.background.withValues(alpha: 0.55),
               child: Center(
@@ -89,10 +90,10 @@ class ProGateWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      onPressed: () => Navigator.of(context).pushNamed(
-                        '/paywall',
-                        arguments: trigger,
-                      ),
+                      onPressed: () {
+                        AnalyticsService().track(AnalyticsService.eProGateCta, {'trigger': trigger});
+                        Navigator.of(context).pushNamed('/paywall', arguments: trigger);
+                      },
                       child: const Text(
                         'Wypróbuj Recovery+ za darmo',
                         style: TextStyle(

@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
 import '../models/rts_diagnostic.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
 
 /// RTSProgressGraphWidget — score history from rts_scores (free on Self-Hatred path).
 class RTSProgressGraphWidget extends StatefulWidget {
@@ -73,7 +74,7 @@ class _LineChart extends StatelessWidget {
     final values = scores.map((s) => (s['score'] as num).toDouble()).toList();
     final dates = scores.map((s) {
       final dt = DateTime.tryParse(s['assessed_at'] ?? '');
-      return dt != null ? '${dt.day}.${dt.month}' : '';
+      return dt != null ? LocaleDates.mdShort(context, dt) : '';
     }).toList();
 
     return SizedBox(

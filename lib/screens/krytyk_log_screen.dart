@@ -6,6 +6,7 @@ import '../app/theme.dart';
 import '../providers/purchase_provider.dart';
 import '../services/analytics_service.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
 import '../widgets/pro_gate_widget.dart';
 
 /// Inner Critic Log — records critical thoughts and reframes them as curiosity.
@@ -145,7 +146,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: _entries.length,
-                        itemBuilder: (_, i) {
+                        itemBuilder: (ctx, i) {
                           final e = _entries[i];
                           final dt = DateTime.tryParse(e['created_at'] ?? '') ?? DateTime.now();
                           return Dismissible(
@@ -162,7 +163,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
                                 children: [
                                   Text(e['content'] ?? '', style: const TextStyle(color: AppColors.textPrimary, fontSize: 14)),
                                   const SizedBox(height: 4),
-                                  Text('${dt.day}.${dt.month}.${dt.year}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                                  Text(LocaleDates.yMd(ctx, dt), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                                 ],
                               ),
                             ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../l10n/strings.dart';
 import '../providers/purchase_provider.dart';
+import '../services/analytics_service.dart';
 
 class PremiumWelcomeScreen extends StatefulWidget {
   const PremiumWelcomeScreen({super.key});
@@ -28,8 +29,11 @@ class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (!context.read<PurchaseProvider>().isPremium) {
+      final purchase = context.read<PurchaseProvider>();
+      if (!purchase.isPro) {
         Navigator.of(context).pushReplacementNamed('/home');
+      } else {
+        AnalyticsService().track(AnalyticsService.ePremiumWelcomeViewed);
       }
     });
   }

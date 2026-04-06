@@ -22,6 +22,7 @@ class PaywallScreen extends StatefulWidget {
 
 class _PaywallScreenState extends State<PaywallScreen> {
   Package? _selected;
+  bool _scheduledSelectionSync = false;
   Timer? _fomoTimer;
   Duration _remaining = const Duration(hours: 23, minutes: 59, seconds: 59);
   final _analytics = AnalyticsService();
@@ -43,9 +44,26 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   List<Package> _visiblePackages(PurchaseProvider purchase) {
-    final list = purchase.paywallPackages.where((p) => _packageVisible(p, purchase)).toList();
+    final raw = purchase.paywallPackages;
+    var list = raw.where((p) => _packageVisible(p, purchase)).toList();
+    // Avoid empty paywall when lifetime is the only SKU but hidden (<90d) — still offer purchase.
+    if (list.isEmpty && raw.isNotEmpty) {
+      list = List<Package>.from(raw);
+    }
     list.sort((a, b) => _packageRank(a).compareTo(_packageRank(b)));
     return list;
+  }
+
+  void _pickDefaultPackage(List<Package> pkgs) {
+    if (pkgs.isEmpty) return;
+    Package? annual;
+    for (final p in pkgs) {
+      if (p.storeProduct.identifier == AppConstants.annualProductId) {
+        annual = p;
+        break;
+      }
+    }
+    setState(() => _selected = annual ?? pkgs.first);
   }
 
   @override
@@ -65,16 +83,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
       if (!mounted) return;
       final pkgs = _visiblePackages(purchase);
       if (pkgs.isEmpty) return;
-      setState(() {
-        Package? annual;
-        for (final p in pkgs) {
-          if (p.storeProduct.identifier == AppConstants.annualProductId) {
-            annual = p;
-            break;
-          }
-        }
-        _selected = annual ?? pkgs.first;
-      });
+      _pickDefaultPackage(pkgs);
     });
   }
 
@@ -103,8 +112,24 @@ class _PaywallScreenState extends State<PaywallScreen> {
   Widget build(BuildContext context) {
     final purchase = context.watch<PurchaseProvider>();
     final pkgs = _visiblePackages(purchase);
-    if (_selected != null && !pkgs.contains(_selected)) {
-      _selected = pkgs.isNotEmpty ? pkgs.first : null;
+    final selectedStillValid =
+        _selected != null && pkgs.any((p) => p.identifier == _selected!.identifier);
+    if (_selected != null && !selectedStillValid) {
+      final next = pkgs.isNotEmpty ? pkgs.first : null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() => _selected = next);
+      });
+    }
+    // Offerings can arrive after first frame — keep CTA enabled once packages exist.
+    if (pkgs.isNotEmpty && _selected == null && !_scheduledSelectionSync) {
+      _scheduledSelectionSync = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scheduledSelectionSync = false;
+        if (!mounted) return;
+        final fresh = _visiblePackages(context.read<PurchaseProvider>());
+        if (fresh.isNotEmpty && _selected == null) _pickDefaultPackage(fresh);
+      });
     }
 
     return Scaffold(

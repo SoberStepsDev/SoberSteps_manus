@@ -106,11 +106,11 @@ class _RTSDailyMirrorWidgetState extends State<RTSDailyMirrorWidget> {
               dropdownColor: AppColors.surface,
               underline: const SizedBox(),
               style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-              items: const [
-                DropdownMenuItem(value: 'pl', child: Text('PL')),
-                DropdownMenuItem(value: 'en', child: Text('EN')),
-                DropdownMenuItem(value: 'es', child: Text('ES')),
-                DropdownMenuItem(value: 'nl', child: Text('NL')),
+              items: [
+                DropdownMenuItem(value: 'pl', child: Text(S.t(context, 'rtsMirrorLangPl'))),
+                DropdownMenuItem(value: 'en', child: Text(S.t(context, 'rtsMirrorLangEn'))),
+                DropdownMenuItem(value: 'es', child: Text(S.t(context, 'rtsMirrorLangEs'))),
+                DropdownMenuItem(value: 'nl', child: Text(S.t(context, 'rtsMirrorLangNl'))),
               ],
               onChanged: (v) => setState(() { _lang = v!; _loadSaved(); }),
             ),

@@ -6,6 +6,7 @@ import '../app/theme.dart';
 import '../providers/purchase_provider.dart';
 import '../services/analytics_service.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
 import '../widgets/pro_gate_widget.dart';
 
 /// X-Marker — daily self-care act checkbox.
@@ -156,7 +157,7 @@ class _XMarkerScreenState extends State<XMarkerScreen> {
                       ? Center(child: Text(S.t(context, 'xMarkerNoEntries'), style: const TextStyle(color: AppColors.textSecondary)))
                       : ListView.builder(
                           itemCount: _acts.length,
-                          itemBuilder: (_, i) {
+                          itemBuilder: (context, i) {
                             final a = _acts[i];
                             final dt = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime.now();
                             return Container(
@@ -167,7 +168,7 @@ class _XMarkerScreenState extends State<XMarkerScreen> {
                                 const Text('✕', style: TextStyle(color: AppColors.primary, fontSize: 18, fontWeight: FontWeight.w700)),
                                 const SizedBox(width: 12),
                                 Expanded(child: Text(a['note'] ?? '', style: const TextStyle(color: AppColors.textPrimary, fontSize: 14))),
-                                Text('${dt.day}.${dt.month}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                                Text(LocaleDates.mdShort(context, dt), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                               ]),
                             );
                           },

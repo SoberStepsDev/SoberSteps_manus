@@ -213,7 +213,11 @@ class _SoberStepsAppState extends State<SoberStepsApp> {
             '/auth': (_) => const AuthScreen(),
             '/home': (_) => const HomeScreen(),
             '/checkin': (_) => const CheckinScreen(),
-            '/paywall': (_) => const PaywallScreen(),
+            '/paywall': (ctx) {
+              final trigger =
+                  ModalRoute.of(ctx)?.settings.arguments as String? ?? 'manual';
+              return PaywallScreen(trigger: trigger);
+            },
             '/premium-welcome': (_) => const PremiumWelcomeScreen(),
             '/three-am': (_) => const ThreeAmScreen(),
             '/craving-surf': (_) => const CravingSurfScreen(),
