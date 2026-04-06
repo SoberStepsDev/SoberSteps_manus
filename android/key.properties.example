@@ -1,7 +1,8 @@
 # Copy to android/key.properties (gitignored). Use the keystore whose certificate matches Play upload key.
 #
-# SoberSteps — expected Play upload certificate SHA-1 (verify before uploading AAB):
-#   5C:58:19:49:85:21:D2:34:E6:40:C5:7F:F0:FA:D4:FC:FC:0F:C5:E5
+# SoberSteps — upload certificate SHA-1: copy from Play Console → App integrity (changes after "Change signing key").
+# Legacy reference: 5C:58:19:49:85:21:D2:34:E6:40:C5:7F:F0:FA:D4:FC:FC:0F:C5:E5
+# Verify: EXPECTED_PLAY_UPLOAD_SHA1='AA:BB:…' android/scripts/verify_play_upload_key.sh
 #
 # Verify locally (after copying your Play upload .jks and creating key.properties):
 #   android/scripts/verify_play_upload_key.sh

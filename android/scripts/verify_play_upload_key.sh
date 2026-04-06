@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 # Verifies android/key.properties points to the Play-registered upload certificate.
-# Expected SHA-1 must match Play Console (App integrity) / upload error message.
+#
+# After "Change signing key" in Play Console, copy the NEW upload certificate SHA-1 from:
+#   Release > Setup > App integrity (or the upload error message).
+#
+# Usage:
+#   EXPECTED_PLAY_UPLOAD_SHA1='AA:BB:...' android/scripts/verify_play_upload_key.sh
+#   android/scripts/verify_play_upload_key.sh 'AA:BB:...'
 set -euo pipefail
 
-EXPECTED_SHA1='5C:58:19:49:85:21:D2:34:E6:40:C5:7F:F0:FA:D4:FC:FC:0F:C5:E5'
+LEGACY_EXPECTED='5C:58:19:49:85:21:D2:34:E6:40:C5:7F:F0:FA:D4:FC:FC:0F:C5:E5'
+EXPECTED_SHA1="${EXPECTED_PLAY_UPLOAD_SHA1:-${1:-$LEGACY_EXPECTED}}"
 ANDROID_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PROP_FILE="$ANDROID_ROOT/key.properties"
 
