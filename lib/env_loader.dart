@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-Map<String, String> _parseEnvToMap(String raw) {
+/// Parses KEY=VALUE lines (skips # comments). Used by [loadAppEnv] and tests.
+Map<String, String> parseEnvContent(String raw) {
   final out = <String, String>{};
   for (var line in raw.split('\n')) {
     line = line.trim();
@@ -26,16 +27,16 @@ Future<void> loadAppEnv() async {
   try {
     bundled = await rootBundle.loadString('assets/config.env.example');
   } catch (_) {}
-  final merged = _parseEnvToMap(bundled);
+  final merged = parseEnvContent(bundled);
   try {
     final localBundled = await rootBundle.loadString('assets/config.env');
-    merged.addAll(_parseEnvToMap(localBundled));
+    merged.addAll(parseEnvContent(localBundled));
   } catch (_) {}
   if (!kIsWeb) {
     for (final path in ['assets/config.env', '.env']) {
       try {
         final f = File(path);
-        if (await f.exists()) merged.addAll(_parseEnvToMap(await f.readAsString()));
+        if (await f.exists()) merged.addAll(parseEnvContent(await f.readAsString()));
       } catch (_) {}
     }
   }

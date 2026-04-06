@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../app/theme.dart';
 import '../services/analytics_service.dart';
+import '../l10n/strings.dart';
 
 /// Self-Experiments screen — 3-day behavioral experiment.
 /// Table: self_experiments (id, user_id, thought, action, results jsonb, created_at)
@@ -60,7 +61,7 @@ class _ExperimentScreenState extends State<ExperimentScreen> {
       _thoughtCtrl.clear(); _actionCtrl.clear();
       setState(() => _experiments.insert(0, entry));
       AnalyticsService().track(AnalyticsService.eExperimentStarted);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Eksperyment rozpoczęty! Wróć za 3 dni.')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.t(context, 'experimentSnackStarted'))));
     } catch (_) {}
     setState(() => _saving = false);
   }
@@ -87,7 +88,7 @@ class _ExperimentScreenState extends State<ExperimentScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
-        title: const Text('Eksperymenty z Sobą', style: TextStyle(color: AppColors.textPrimary)),
+        title: Text(S.t(context, 'experimentTitle'), style: const TextStyle(color: AppColors.textPrimary)),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
       body: SingleChildScrollView(
@@ -95,23 +96,23 @@ class _ExperimentScreenState extends State<ExperimentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Nowy eksperyment (3 dni)', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+            Text(S.t(context, 'experimentNewLabel'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
             const SizedBox(height: 8),
-            _field(_thoughtCtrl, 'Myśl do przetestowania', 'Np. "Nie dam rady bez tego"'),
+            _field(context, _thoughtCtrl, S.t(context, 'experimentThoughtLabel'), S.t(context, 'experimentThoughtHint')),
             const SizedBox(height: 8),
-            _field(_actionCtrl, 'Małe działanie na dziś', 'Np. "Przez 10 min zrobię X"'),
+            _field(context, _actionCtrl, S.t(context, 'experimentActionLabel'), S.t(context, 'experimentActionHint')),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _saving ? null : _start,
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                child: _saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Rozpocznij eksperyment', style: TextStyle(color: Colors.white)),
+                child: _saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(S.t(context, 'experimentStartBtn'), style: const TextStyle(color: Colors.white)),
               ),
             ),
             if (_experiments.isNotEmpty) ...[
               const SizedBox(height: 24),
-              const Text('Aktywne eksperymenty', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              Text(S.t(context, 'experimentActiveLabel'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
               const SizedBox(height: 8),
               if (_loading) const Center(child: CircularProgressIndicator()),
               ..._experiments.map((e) => _ExperimentCard(experiment: e, onResult: _recordResult)),
@@ -122,7 +123,7 @@ class _ExperimentScreenState extends State<ExperimentScreen> {
     );
   }
 
-  Widget _field(TextEditingController ctrl, String label, String hint) => TextField(
+  Widget _field(BuildContext context, TextEditingController ctrl, String label, String hint) => TextField(
     controller: ctrl, maxLines: 2, maxLength: 300,
     style: const TextStyle(color: AppColors.textPrimary),
     decoration: InputDecoration(
@@ -152,7 +153,7 @@ class _ExperimentCard extends StatelessWidget {
         children: [
           Text('🧪 ${experiment['thought'] ?? ''}', style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
-          Text('Działanie: ${experiment['action'] ?? ''}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text('${S.t(context, 'experimentActionPrefix')} ${experiment['action'] ?? ''}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
           const SizedBox(height: 8),
           Row(children: [
             for (final day in ['day1', 'day2', 'day3'])
@@ -160,11 +161,11 @@ class _ExperimentCard extends StatelessWidget {
                 final ctrl = TextEditingController(text: results[day]?.toString() ?? '');
                 await showDialog(context: context, builder: (_) => AlertDialog(
                   backgroundColor: AppColors.surface,
-                  title: Text('Dzień ${day.substring(3)}', style: const TextStyle(color: AppColors.textPrimary)),
-                  content: TextField(controller: ctrl, style: const TextStyle(color: AppColors.textPrimary), decoration: const InputDecoration(hintText: 'Co zaobserwowałeś?', hintStyle: TextStyle(color: AppColors.textSecondary))),
+                  title: Text(S.t(context, 'experimentDayTitle').replaceAll('{n}', day.substring(3)), style: const TextStyle(color: AppColors.textPrimary)),
+                  content: TextField(controller: ctrl, style: const TextStyle(color: AppColors.textPrimary), decoration: InputDecoration(hintText: S.t(context, 'experimentObserveHint'), hintStyle: const TextStyle(color: AppColors.textSecondary))),
                   actions: [
-                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Anuluj')),
-                    TextButton(onPressed: () { Navigator.pop(context); onResult(experiment['id'], day, ctrl.text.trim()); }, child: const Text('Zapisz', style: TextStyle(color: AppColors.primary))),
+                    TextButton(onPressed: () => Navigator.pop(context), child: Text(S.t(context, 'cancel'))),
+                    TextButton(onPressed: () { Navigator.pop(context); onResult(experiment['id'], day, ctrl.text.trim()); }, child: Text(S.t(context, 'save'), style: const TextStyle(color: AppColors.primary))),
                   ],
                 ));
               })),
@@ -191,7 +192,7 @@ class _DayChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: result != null ? AppColors.primary : AppColors.textSecondary.withValues(alpha: 0.3)),
       ),
-      child: Center(child: Text('Dzień ${day.substring(3)}', style: TextStyle(color: result != null ? AppColors.primary : AppColors.textSecondary, fontSize: 12))),
+      child: Center(child: Text(S.t(context, 'experimentDayTitle').replaceAll('{n}', day.substring(3)), style: TextStyle(color: result != null ? AppColors.primary : AppColors.textSecondary, fontSize: 12))),
     ),
   );
 }

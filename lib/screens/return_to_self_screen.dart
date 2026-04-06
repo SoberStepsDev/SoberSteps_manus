@@ -335,7 +335,7 @@ class _ReturnToSelfScreenState extends State<ReturnToSelfScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          free ? S.t(context, 'rtsBadgeFree') : S.t(context, 'rtsBadgeRecoveryPlus'),
+                          free ? S.t(context, 'rtsBadgeFree') : S.recoveryPlus(context),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,

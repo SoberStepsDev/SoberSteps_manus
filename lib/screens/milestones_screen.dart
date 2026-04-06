@@ -132,7 +132,7 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
       TtsService().speakMilestone(
         isPremium: isPremium,
         days: days,
-        freeFallback: data.message,
+        freeFallback: S.t(context, data.messageKey),
       );
     });
 
@@ -198,7 +198,7 @@ class _MilestoneCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      data.title,
+                      S.t(context, data.titleKey),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -207,13 +207,13 @@ class _MilestoneCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     if (achieved)
-                      const Text(
-                        'Punkt widokowy osiągnięty ✔',
-                        style: TextStyle(color: AppColors.success, fontSize: 12),
+                      Text(
+                        S.t(context, 'milestoneViewpointReached'),
+                        style: const TextStyle(color: AppColors.success, fontSize: 12),
                       )
                     else if (isNext)
                       Text(
-                        'Za zakrętem: ${data.days - daysSober} dni',
+                        S.t(context, 'milestoneAroundBend').replaceAll('{n}', '${data.days - daysSober}'),
                         style: const TextStyle(color: AppColors.primary, fontSize: 12),
                       )
                     else
@@ -296,7 +296,7 @@ class _CelebrationDialogState extends State<_CelebrationDialog> {
               tween: IntTween(begin: 0, end: data.days),
               duration: const Duration(milliseconds: 700),
               curve: Curves.easeOutCubic,
-              builder: (_, v, __) => Text(
+              builder: (_, v, _) => Text(
                 '$v',
                 style: const TextStyle(
                   fontSize: 56,
@@ -307,7 +307,7 @@ class _CelebrationDialogState extends State<_CelebrationDialog> {
               ),
             ),
             Text(
-              data.title,
+              S.t(context, data.titleKey),
               style: const TextStyle(
                 fontSize: 16,
                 color: AppColors.textSecondary,
@@ -321,7 +321,7 @@ class _CelebrationDialogState extends State<_CelebrationDialog> {
               child: Lottie.network(
                 'https://assets10.lottiefiles.com/packages/lf20_touohxv0.json',
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Text('🎉🎊✨', style: TextStyle(fontSize: 36)),
+                errorBuilder: (_, _, _) => const Text('🎉🎊✨', style: TextStyle(fontSize: 36)),
               ),
             ),
             // Step 4: Karta filozoficzna (fade in po 800ms)
@@ -341,7 +341,7 @@ class _CelebrationDialogState extends State<_CelebrationDialog> {
                     child: Column(
                       children: [
                         Text(
-                          data.message,
+                          S.t(context, data.messageKey),
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 15,
@@ -352,7 +352,7 @@ class _CelebrationDialogState extends State<_CelebrationDialog> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          data.subMessage,
+                          S.t(context, data.subKey),
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 13,
@@ -370,11 +370,11 @@ class _CelebrationDialogState extends State<_CelebrationDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if (data.shareText.isNotEmpty)
+                if (data.shareKey != null)
                   TextButton.icon(
                     icon: const Icon(Icons.share, size: 18),
-                    label: const Text('Udostępnij'),
-                    onPressed: () => Share.share(data.shareText),
+                    label: Text(S.t(context, 'quickShare')),
+                    onPressed: () => Share.share(S.t(context, data.shareKey!)),
                   ),
                 if (!widget.isPremium)
                   TextButton(
@@ -382,14 +382,14 @@ class _CelebrationDialogState extends State<_CelebrationDialog> {
                       Navigator.pop(context);
                       Navigator.of(context).pushNamed('/paywall');
                     },
-                    child: const Text(
-                      'Recovery+',
-                      style: TextStyle(color: AppColors.gold),
+                    child: Text(
+                      S.t(context, 'recoveryPlus'),
+                      style: const TextStyle(color: AppColors.gold),
                     ),
                   ),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
+                  child: Text(S.t(context, 'ok')),
                 ),
               ],
             ),

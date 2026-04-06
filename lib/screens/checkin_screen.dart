@@ -385,21 +385,20 @@ class _SelfCompassionFilterDialogState
   int _remaining = _seconds;
   Timer? _timer;
 
-  // 5 rotating messages — no moralizing, pure warmth
-  static const _messages = [
-    'Jesteś tu. To wystarczy.\nOddech. Jeden krok.',
-    'To, co czujesz, jest prawdziwe.\nMożesz to zapisać.',
-    'Trudne chwile też są częścią drogi.\nJesteś bezpieczny.',
-    'Nie musisz tego naprawiać teraz.\nWystarczy być.',
-    'Widzę Cię w tej chwili.\nJesteś odważny.',
+  static const _messageKeys = [
+    'checkinCompassionPause1',
+    'checkinCompassionPause2',
+    'checkinCompassionPause3',
+    'checkinCompassionPause4',
+    'checkinCompassionPause5',
   ];
 
-  late final String _message;
+  late final String _messageKey;
 
   @override
   void initState() {
     super.initState();
-    _message = _messages[DateTime.now().second % _messages.length];
+    _messageKey = _messageKeys[DateTime.now().second % _messageKeys.length];
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) { t.cancel(); return; }
       setState(() => _remaining--);
@@ -451,7 +450,7 @@ class _SelfCompassionFilterDialogState
           ),
           const SizedBox(height: 20),
           Text(
-            _message,
+            S.t(context, _messageKey),
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.textPrimary,
@@ -465,14 +464,14 @@ class _SelfCompassionFilterDialogState
       actions: [
         TextButton(
           onPressed: widget.onCancel,
-          child: const Text(
-            'Wróć',
-            style: TextStyle(color: AppColors.textSecondary),
+          child: Text(
+            S.t(context, 'back'),
+            style: const TextStyle(color: AppColors.textSecondary),
           ),
         ),
         ElevatedButton(
           onPressed: widget.onProceed,
-          child: const Text('Zapisz'),
+          child: Text(S.t(context, 'save')),
         ),
       ],
     );

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../constants/app_constants.dart';
 import '../providers/purchase_provider.dart';
+import '../l10n/strings.dart';
 
 /// SelfCompassionScreen — Return to Self module (Faza 14)
 /// 5 CBT cards:
@@ -18,40 +19,40 @@ class SelfCompassionScreen extends StatelessWidget {
     _Card(
       id: 'inner_critic',
       icon: '🪞',
-      title: 'Wewnętrzny Krytyk',
-      subtitle: 'Zapisz myśl krytyczną i zamień ją na ciekawość.',
+      titleKey: 'scMenuInnerCriticTitle',
+      subtitleKey: 'scMenuInnerCriticSub',
       route: '/inner-critic-log',
       proOnly: false,
     ),
     _Card(
       id: 'self_experiments',
       icon: '🧪',
-      title: 'Eksperymenty z Sobą',
-      subtitle: 'Jeden mały eksperyment behawioralny na dziś.',
+      titleKey: 'scMenuExperimentTitle',
+      subtitleKey: 'scMenuExperimentSub',
       route: '/experiment',
       proOnly: false,
     ),
     _Card(
       id: 'compassion_letter',
       icon: '✉️',
-      title: 'List do Siebie',
-      subtitle: 'Napisz list do siebie z przyszłości.',
+      titleKey: 'scMenuLetterTitle',
+      subtitleKey: 'scMenuLetterSub',
       route: '/future-letter-write',
       proOnly: false,
     ),
     _Card(
       id: 'daily_self_acts',
       icon: '✕',
-      title: 'X-Marker',
-      subtitle: 'Jeden akt troski o siebie — zaznacz X.',
+      titleKey: 'scMenuXMarkerTitle',
+      subtitleKey: 'scMenuXMarkerSub',
       route: '/x-marker',
       proOnly: false,
     ),
     _Card(
       id: 'krytyk_patterns',
       icon: '🔒',
-      title: 'Wzorce Krytyka',
-      subtitle: 'Heatmap godzinowy, trend 14 dni, top 3 słowa.',
+      titleKey: 'scMenuPatternsTitle',
+      subtitleKey: 'scMenuPatternsSub',
       route: '/krytyk-patterns',
       proOnly: true,
     ),
@@ -64,7 +65,7 @@ class SelfCompassionScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Powrót do Siebie'),
+        title: Text(S.t(context, 'returnToSelf')),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
@@ -96,15 +97,15 @@ class SelfCompassionScreen extends StatelessWidget {
 class _Card {
   final String id;
   final String icon;
-  final String title;
-  final String subtitle;
+  final String titleKey;
+  final String subtitleKey;
   final String route;
   final bool proOnly;
   const _Card({
     required this.id,
     required this.icon,
-    required this.title,
-    required this.subtitle,
+    required this.titleKey,
+    required this.subtitleKey,
     required this.route,
     required this.proOnly,
   });
@@ -148,7 +149,7 @@ class _CardTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    card.title,
+                    S.t(context, card.titleKey),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: locked
                               ? AppColors.textSecondary
@@ -157,7 +158,7 @@ class _CardTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    card.subtitle,
+                    S.t(context, card.subtitleKey),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],

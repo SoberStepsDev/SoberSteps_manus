@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
 import '../widgets/pro_gate_widget.dart';
 import '../services/analytics_service.dart';
+import '../l10n/strings.dart';
 
 /// KrytykPatternsScreen — PRO only.
 /// Shows: hourly heatmap, 14-day trend, top 3 words from inner_critic_log.
@@ -81,7 +82,7 @@ class _KrytykPatternsScreenState extends State<KrytykPatternsScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
-        title: const Text('Wzorce Krytyka', style: TextStyle(color: AppColors.textPrimary)),
+        title: Text(S.t(context, 'krytykPatternsTitle'), style: const TextStyle(color: AppColors.textPrimary)),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
       body: ProGateWidget(
@@ -89,24 +90,24 @@ class _KrytykPatternsScreenState extends State<KrytykPatternsScreen> {
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _entries.isEmpty
-                ? const Center(child: Padding(padding: EdgeInsets.all(32), child: Text('Brak danych z ostatnich 14 dni.\nZacznij logować myśli krytyczne.', style: TextStyle(color: AppColors.textSecondary), textAlign: TextAlign.center)))
+                ? Center(child: Padding(padding: const EdgeInsets.all(32), child: Text(S.t(context, 'krytykPatternsEmpty'), style: const TextStyle(color: AppColors.textSecondary), textAlign: TextAlign.center)))
                 : SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _SectionTitle('Godzinowy heatmap (24h)'),
+                        _SectionTitle(S.t(context, 'krytykHourlyHeatmap')),
                         const SizedBox(height: 8),
-                        _HourlyHeatmap(counts: _hourlyCount),
+                        _HourlyHeatmap(counts: _hourlyCount, tooltipTemplate: S.t(context, 'krytykHeatmapTooltip')),
                         const SizedBox(height: 24),
-                        _SectionTitle('Trend 14 dni'),
+                        _SectionTitle(S.t(context, 'krytykTrend14Days')),
                         const SizedBox(height: 8),
                         _DailyTrend(counts: _dailyCount),
                         const SizedBox(height: 24),
-                        _SectionTitle('Top 3 słowa'),
+                        _SectionTitle(S.t(context, 'krytykTop3Words')),
                         const SizedBox(height: 8),
                         ..._topWords.map((e) => _WordRow(word: e.key, count: e.value)),
-                        if (_topWords.isEmpty) const Text('Za mało danych.', style: TextStyle(color: AppColors.textSecondary)),
+                        if (_topWords.isEmpty) Text(S.t(context, 'krytykNotEnoughData'), style: const TextStyle(color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -124,7 +125,8 @@ class _SectionTitle extends StatelessWidget {
 
 class _HourlyHeatmap extends StatelessWidget {
   final List<int> counts;
-  const _HourlyHeatmap({required this.counts});
+  final String tooltipTemplate;
+  const _HourlyHeatmap({required this.counts, required this.tooltipTemplate});
   @override
   Widget build(BuildContext context) {
     final maxVal = counts.reduce((a, b) => a > b ? a : b).clamp(1, 999);
@@ -133,7 +135,7 @@ class _HourlyHeatmap extends StatelessWidget {
       children: List.generate(24, (h) {
         final intensity = counts[h] / maxVal;
         return Tooltip(
-          message: '$h:00 — ${counts[h]} wpisów',
+          message: tooltipTemplate.replaceAll('{hour}', '$h').replaceAll('{count}', '${counts[h]}'),
           child: Container(
             width: 28, height: 28,
             decoration: BoxDecoration(

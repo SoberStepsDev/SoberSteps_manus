@@ -98,8 +98,8 @@ class AnalyticsService {
         'crash-log-feedback',
         body: {
           'message': message,
-          if (stack != null) 'stack': stack,
-          if (_userId != null) 'user_id': _userId,
+          'stack': stack,
+          'user_id': _userId,
           'ts': DateTime.now().toIso8601String(),
         },
       );

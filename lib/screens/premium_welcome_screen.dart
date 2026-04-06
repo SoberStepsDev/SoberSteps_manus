@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
+import '../l10n/strings.dart';
 
 class PremiumWelcomeScreen extends StatefulWidget {
   const PremiumWelcomeScreen({super.key});
@@ -40,22 +41,22 @@ class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
             _buildPage(
               icon: Icons.shield_rounded,
               color: AppColors.streakBlue,
-              title: 'Witaj w Recovery+!',
-              subtitle: 'Streak Protection włączony.',
+              titleKey: 'welcomeRecovery',
+              subtitleKey: 'streakProtectionOn',
             ),
             _buildPage(
               icon: Icons.mail_rounded,
               color: AppColors.primary,
-              title: 'Napisz pierwszy list do przyszłego siebie.',
-              subtitle: 'Dotrze do Ciebie w wybranym dniu.',
-              ctaLabel: 'Napisz list',
+              titleKey: 'writeFirstLetter',
+              subtitleKey: 'deliversOnDate',
+              ctaLabelKey: 'writeLetter',
               ctaRoute: '/future-letter-write',
             ),
             _buildPage(
               icon: Icons.mic_rounded,
               color: AppColors.gold,
-              title: 'Przygotuj się na głos w Dniu 30.',
-              subtitle: 'Wiadomość głosowa czeka na Twój milestone.',
+              titleKey: 'prepareVoiceDay30',
+              subtitleKey: 'voiceAwaits',
             ),
           ],
         ),
@@ -66,9 +67,9 @@ class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
   Widget _buildPage({
     required IconData icon,
     required Color color,
-    required String title,
-    required String subtitle,
-    String? ctaLabel,
+    required String titleKey,
+    required String subtitleKey,
+    String? ctaLabelKey,
     String? ctaRoute,
   }) {
     return Padding(
@@ -78,11 +79,11 @@ class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
         children: [
           Icon(icon, size: 80, color: color).animate().scale(begin: const Offset(0.3, 0.3), duration: 600.ms, curve: Curves.elasticOut),
           const SizedBox(height: 32),
-          Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+          Text(S.t(context, titleKey), textAlign: TextAlign.center, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
           const SizedBox(height: 12),
-          Text(subtitle, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
+          Text(S.t(context, subtitleKey), textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
           const SizedBox(height: 48),
-          if (ctaLabel != null && ctaRoute != null)
+          if (ctaLabelKey != null && ctaRoute != null)
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
@@ -93,7 +94,7 @@ class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 onPressed: () => Navigator.of(context).pushNamed(ctaRoute),
-                child: Text(ctaLabel),
+                child: Text(S.t(context, ctaLabelKey)),
               ),
             ),
           const SizedBox(height: 16),
@@ -101,7 +102,7 @@ class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _next,
-              child: Text(_page < 2 ? 'Dalej' : 'Zaczynajmy!'),
+              child: Text(_page < 2 ? S.t(context, 'nextBtn') : S.t(context, 'letsGo')),
             ),
           ),
         ],

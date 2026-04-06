@@ -1,0 +1,42 @@
+---
+description: After completing any task in the SoberSteps app, always run full `flutter analyze` and `flutter test`
+globs: []
+alwaysApply: false
+---
+
+# SoberSteps Post-Task Protocol
+
+This rule applies exclusively to the SoberSteps Flutter application.
+
+Whenever you finish implementing any task in this project — whether it's a new feature, bug fix, refactoring, UI change, dependency update, or any other modification — you must follow this protocol:
+
+### Mandatory Final Steps
+
+After all changes are made and files are saved, **always** perform these two commands in the project root:
+
+1. **Static Analysis**
+
+   ```bash
+   flutter analyze --no-pub --congratulate
+   ```
+
+2. **Unit & Widget Tests**
+
+   ```bash
+   flutter test
+   ```
+
+### Execution Rules
+
+- These steps are mandatory and must never be skipped, even for small or trivial changes.
+- Run `flutter analyze` first, then `flutter test`.
+- Paste the full output of both commands into your response.
+- If any errors, warnings, or infos appear in `flutter analyze`, or if any tests fail:
+  - Fix the issues immediately.
+  - Re-run the failing command(s).
+  - Repeat until both commands pass cleanly.
+
+Only when both `flutter analyze` shows 0 issues and all tests pass, confirm it clearly in your final response, for example:
+
+- ✅ SoberSteps – `flutter analyze` completed successfully (0 issues)
+- ✅ SoberSteps – `flutter test` completed successfully (all tests passed)
