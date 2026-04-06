@@ -1,5 +1,3 @@
-.github/workflows/
-
 # Secrets — never commit (template: assets/config.env.example → copy to assets/config.env locally)
 .env
 **/config.env
