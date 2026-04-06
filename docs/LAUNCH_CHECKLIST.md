@@ -103,6 +103,29 @@
 
 ---
 
+## Google Play — przekazanie do review
+
+**Artefakt:** po udanym buildzie: `build/app/outputs/bundle/release/app-release.aab`
+
+**Komenda (release, produkcyjne flagi):**
+
+```bash
+flutter build appbundle --release --dart-define=IS_DEVELOPMENT=false
+```
+
+**Podpis:** bez pliku `android/key.properties` Gradle używa **klucza debug** — taki AAB **nie nadaje się** do produkcji w Play (upload się nie powiedzie lub trafi tylko do ograniczonych ścieżek testowych). Przed review: keystore + `key.properties` (wzór: `android/key.properties.example`), potem **przebuduj** AAB.
+
+**W konsoli (skrót):**
+
+1. **Testowanie i wydanie** → wybór ścieżki (**Wewnętrzne** / **Zamknięte** / **Otwarte** / **Produkcja**) → **Utwórz nowe wydanie** → wgraj `.aab`.
+2. Uzupełnij **informacje o wydaniu** (notatki dla recenzenta / co nowego).
+3. **Zapisz** → przejdź przez **Podsumowanie wydania** (polityka prywatności, **Bezpieczeństwo danych**, deklaracje reklam / aplikacji informacyjnej, wiek docelowy, kraje).
+4. **Wyślij do sprawdzenia** (lub najpierw **Wewnętrzne testy**, żeby zweryfikować instalację z Play).
+
+**Wersja:** `pubspec.yaml` → `version: x.y.z+NN` — **NN** (`versionCode`) musi rosnąć przy każdym nowym uploadzie tego samego pakietu.
+
+---
+
 ## Secrets (GitHub Actions)
 
 Dodać w: Settings → Secrets → Actions:

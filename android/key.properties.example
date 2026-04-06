@@ -1,4 +1,5 @@
 storePassword=
 keyPassword=
 keyAlias=upload
-storeFile=app/upload-keystore.jks
+# Path relative to android/app/ (this file lives in android/). Example: keystore at android/upload-keystore.jks
+storeFile=../upload-keystore.jks
