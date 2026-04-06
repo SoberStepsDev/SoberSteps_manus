@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../app/theme.dart';
 import '../models/rts_diagnostic.dart';
 import '../services/analytics_service.dart';
+import '../l10n/strings.dart';
 
 /// RTSReassessmentScreen — re-takes RTS diagnostic after 30 days.
 /// Compares new score vs baseline, shows delta and insight.
@@ -92,7 +93,7 @@ class _RTSReassessmentScreenState extends State<RTSReassessmentScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
-        title: const Text('Ponowna Ocena RTS', style: TextStyle(color: AppColors.textPrimary)),
+        title: Text(S.t(context, 'rtsReassessmentTitle'), style: const TextStyle(color: AppColors.textPrimary)),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4),
@@ -143,7 +144,6 @@ class _RTSReassessmentScreenState extends State<RTSReassessmentScreen> {
     final delta = (_newScore ?? 0) - (_baselineScore ?? 0);
     final improved = delta > 0;
     final deltaStr = delta > 0 ? '+$delta' : '$delta';
-    final insight = _deltaInsight(delta);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -154,11 +154,11 @@ class _RTSReassessmentScreenState extends State<RTSReassessmentScreen> {
               const Spacer(),
               Text(_profile != null ? RtsDiagnostic.profileEmoji(_profile!) : '🪞', style: const TextStyle(fontSize: 64)),
               const SizedBox(height: 16),
-              Text('Wynik: $_newScore / ${RtsDiagnostic.maxScore}', style: const TextStyle(color: AppColors.textPrimary, fontSize: 22, fontWeight: FontWeight.w700)),
+              Text(S.t(context, 'rtsScoreResult').replaceAll('{score}', '$_newScore').replaceAll('{max}', '${RtsDiagnostic.maxScore}'), style: const TextStyle(color: AppColors.textPrimary, fontSize: 22, fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
               if (_baselineScore != null) ...[
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  const Text('Zmiana vs baseline: ', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                  Text(S.t(context, 'rtsDeltaVsBaseline'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
                   Text(deltaStr, style: TextStyle(color: improved ? Colors.greenAccent : Colors.redAccent, fontSize: 16, fontWeight: FontWeight.w700)),
                 ]),
                 const SizedBox(height: 4),
@@ -168,7 +168,7 @@ class _RTSReassessmentScreenState extends State<RTSReassessmentScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(16)),
-                child: Text(insight, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5), textAlign: TextAlign.center),
+                child: Text(_deltaInsight(context, delta), style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5), textAlign: TextAlign.center),
               ),
               const Spacer(),
               SizedBox(
@@ -176,7 +176,7 @@ class _RTSReassessmentScreenState extends State<RTSReassessmentScreen> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), padding: const EdgeInsets.symmetric(vertical: 14)),
-                  child: const Text('Wróć do Drogi', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  child: Text(S.t(context, 'rtsBackToPath'), style: const TextStyle(color: Colors.white, fontSize: 16)),
                 ),
               ),
             ],
@@ -186,11 +186,11 @@ class _RTSReassessmentScreenState extends State<RTSReassessmentScreen> {
     );
   }
 
-  String _deltaInsight(int delta) {
-    if (delta >= 5) return 'Wyraźna zmiana. Droga jest widoczna — nie tylko dla Ciebie.';
-    if (delta > 0) return 'Małe kroki. Każdy z nich jest prawdziwy.';
-    if (delta == 0) return 'Stabilność to też odpowiedź. Jesteś tu.';
-    return 'Trudny okres. To też część drogi — nie jej koniec.';
+  String _deltaInsight(BuildContext context, int delta) {
+    if (delta >= 5) return S.t(context, 'rtsInsightDelta5');
+    if (delta > 0) return S.t(context, 'rtsInsightDeltaPos');
+    if (delta == 0) return S.t(context, 'rtsInsightDelta0');
+    return S.t(context, 'rtsInsightDeltaNeg');
   }
 }
 

@@ -112,9 +112,9 @@ class _CravingSurfScreenState extends State<CravingSurfScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('30s preview zakończony', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            Text(S.t(context, 'cravingPreviewEndedTitle'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             const SizedBox(height: 8),
-            const Text('Odblokuj pełne soundscapes w Recovery+', style: TextStyle(color: AppColors.textSecondary)),
+            Text(S.t(context, 'cravingUnlockSoundscapes'), style: const TextStyle(color: AppColors.textSecondary)),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -128,12 +128,12 @@ class _CravingSurfScreenState extends State<CravingSurfScreen> {
                   Navigator.pop(context);
                   Navigator.of(context).pushNamed('/paywall', arguments: 'craving_surf_preview');
                 },
-                child: const Text('Wypróbuj Recovery+ za darmo', style: TextStyle(fontWeight: FontWeight.w700)),
+                child: Text(S.t(context, 'cravingTryFree'), style: const TextStyle(fontWeight: FontWeight.w700)),
               ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Może później', style: TextStyle(color: AppColors.textSecondary)),
+              child: Text(S.t(context, 'cravingMaybeLater'), style: const TextStyle(color: AppColors.textSecondary)),
             ),
           ],
         ),
@@ -183,19 +183,19 @@ class _CravingSurfScreenState extends State<CravingSurfScreen> {
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             const SizedBox(height: 8),
-            const Text('10 minut. Fala przeszła.', textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textSecondary)),
+            Text(S.t(context, 'cravingTenMinLine'), textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textSecondary)),
           ],
         ),
         actions: [
           TextButton.icon(
             icon: const Icon(Icons.share_rounded, size: 18),
-            label: const Text('Udostępnij'),
+            label: Text(S.t(context, 'quickShare')),
             onPressed: () {
               Navigator.pop(context);
               Share.share(
-                'Właśnie przeżyłem/am głód bez używania. 10 minut surfowania na fali. 🌊 #SoberSteps #CravingSurf',
-                subject: 'Przeżyłem/am głód!',
+                S.t(context, 'cravingShareBody'),
+                subject: S.t(context, 'cravingShareSubject'),
               );
             },
           ),

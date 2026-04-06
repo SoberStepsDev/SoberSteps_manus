@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../app/theme.dart';
 import '../services/analytics_service.dart';
+import '../l10n/strings.dart';
 
 /// Inner Critic Log — records critical thoughts and reframes them as curiosity.
 /// Table: inner_critic_log (id, user_id, content, created_at)
@@ -56,23 +57,18 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
     setState(() => _saving = false);
   }
 
-  void _showReframe(String thought) {
-    final reframes = [
-      'Co ciekawego możesz odkryć w tej myśli?',
-      'Jak zareagowałbyś na przyjaciela z tą samą myślą?',
-      'Co ta myśl próbuje Cię chronić?',
-      'Czy ta myśl jest faktem, czy interpretacją?',
-      'Jaka jest najbardziej życzliwa odpowiedź na tę myśl?',
-    ];
-    final reframe = reframes[DateTime.now().second % reframes.length];
+  static const _reframeKeys = ['krytykReframe1', 'krytykReframe2', 'krytykReframe3', 'krytykReframe4', 'krytykReframe5'];
+
+  void _showReframe(String _) {
+    final key = _reframeKeys[DateTime.now().second % _reframeKeys.length];
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('🪞 Zamień krytykę w ciekawość', style: TextStyle(color: AppColors.textPrimary, fontSize: 16)),
-        content: Text(reframe, style: const TextStyle(color: AppColors.textSecondary, fontSize: 15)),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Dziękuję', style: TextStyle(color: AppColors.primary)))],
+        title: Text(S.t(ctx, 'krytykReframeDialogTitle'), style: const TextStyle(color: AppColors.textPrimary, fontSize: 16)),
+        content: Text(S.t(ctx, key), style: const TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(S.t(ctx, 'krytykThanks'), style: const TextStyle(color: AppColors.primary)))],
       ),
     );
   }
@@ -91,7 +87,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
-        title: const Text('Wewnętrzny Krytyk', style: TextStyle(color: AppColors.textPrimary)),
+        title: Text(S.t(context, 'krytykLogTitle'), style: const TextStyle(color: AppColors.textPrimary)),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
       body: Column(
@@ -101,7 +97,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Zapisz myśl krytyczną', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                Text(S.t(context, 'krytykSaveThoughtLabel'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _controller,
@@ -109,7 +105,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
                   maxLength: 500,
                   style: const TextStyle(color: AppColors.textPrimary),
                   decoration: InputDecoration(
-                    hintText: 'Np. "Znowu zawiodłem…"',
+                    hintText: S.t(context, 'krytykThoughtHint'),
                     hintStyle: const TextStyle(color: AppColors.textSecondary),
                     filled: true,
                     fillColor: AppColors.surface,
@@ -122,7 +118,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
                   child: ElevatedButton(
                     onPressed: _saving ? null : _save,
                     style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                    child: _saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Zapisz i zamień w ciekawość', style: TextStyle(color: Colors.white)),
+                    child: _saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(S.t(context, 'krytykSaveAndReframe'), style: const TextStyle(color: Colors.white)),
                   ),
                 ),
               ],
@@ -133,7 +129,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _entries.isEmpty
-                    ? const Center(child: Text('Brak wpisów.', style: TextStyle(color: AppColors.textSecondary)))
+                    ? Center(child: Text(S.t(context, 'krytykNoEntries'), style: const TextStyle(color: AppColors.textSecondary)))
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: _entries.length,

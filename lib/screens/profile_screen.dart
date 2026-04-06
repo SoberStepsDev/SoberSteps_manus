@@ -82,14 +82,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Wylogować się?', style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text('Twoje dane są bezpieczne — możesz wrócić w każdej chwili.',
-            style: TextStyle(color: AppColors.textSecondary)),
+        title: Text(S.t(ctx, 'signOutTitle'), style: const TextStyle(color: AppColors.textPrimary)),
+        content: Text(S.t(ctx, 'signOutBody'),
+            style: const TextStyle(color: AppColors.textSecondary)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Zostań')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(S.t(ctx, 'signOutStay'))),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Wyloguj', style: TextStyle(color: AppColors.error)),
+            child: Text(S.t(ctx, 'signOutConfirm'), style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -120,11 +120,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               color: AppColors.crisisRed.withValues(alpha: 0.12),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: const Row(children: [
-                Icon(Icons.phone, color: AppColors.crisisRed, size: 16),
-                SizedBox(width: 8),
-                Expanded(child: Text('Kryzys? SAMHSA: 1-800-662-4357 (24/7)',
-                    style: TextStyle(color: AppColors.crisisRed, fontSize: 12, fontWeight: FontWeight.w600))),
+              child: Row(children: [
+                const Icon(Icons.phone, color: AppColors.crisisRed, size: 16),
+                const SizedBox(width: 8),
+                Expanded(child: Text(S.t(context, 'crisisSamhsaBanner'),
+                    style: const TextStyle(color: AppColors.crisisRed, fontSize: 12, fontWeight: FontWeight.w600))),
               ]),
             ),
           ),
@@ -162,10 +162,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _tile(context, Icons.auto_stories_rounded, S.t(context, 'crashLogTitle'),
                     () => Navigator.pushNamed(context, '/crash-log')),
                 _SectionLabel(S.t(context, 'notifications')),
-                _switchTile('Przypomnienie o check-inie', Icons.notifications_outlined,
+                _switchTile(S.t(context, 'profileCheckinReminderTitle'), Icons.notifications_outlined,
                     _notifEnabled, _toggleNotif),
                 if (_notifEnabled) _tile(context, Icons.access_time,
-                    'Godzina: ${_reminderHour.toString().padLeft(2, '0')}:00',
+                    S.t(context, 'profileReminderHourLabel').replaceAll('{hh}', _reminderHour.toString().padLeft(2, '0')),
                     () => _changeReminderHour(context)),
                 _SectionLabel(S.t(context, 'settings')),
                 _tile(context, Icons.language, S.t(context, 'language'),
@@ -184,8 +184,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _tile(context, Icons.restore, S.t(context, 'restorePurchases'),
                       () => purchase.restore()),
                   _tile(context, Icons.delete_forever_outlined, S.t(context, 'deleteAccount'),
-                      () => launchUrl(Uri.parse(
-                          'mailto:${AppConstants.contactEmail}?subject=Usunięcie%20konta%20-%20SoberSteps')),
+                      () {
+                        final sub = Uri.encodeComponent(S.t(context, 'deleteAccountEmailSubject'));
+                        launchUrl(Uri.parse(
+                            'mailto:${AppConstants.contactEmail}?subject=$sub'));
+                      },
                       color: AppColors.textSecondary),
                   _tile(context, Icons.logout, S.t(context, 'logout'),
                       () => _confirmSignOut(context, auth), color: AppColors.error),
@@ -229,8 +232,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
                 color: AppColors.gold.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
-            child: const Text('Recovery+',
-                style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700, fontSize: 12)),
+            child: Text(S.recoveryPlus(context),
+                style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700, fontSize: 12)),
           ),
         ],
       ]),
@@ -281,36 +284,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (_, ctrl) => ListView(
           controller: ctrl,
           padding: const EdgeInsets.all(24),
-          children: const [
-            Text('O Twórcy', style: TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w700)),
-            SizedBox(height: 16),
+          children: [
+            Text(S.t(context, 'aboutCreatorTitle'), style: const TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 16),
             Text(
-              'SoberSteps powstał z osobistego doświadczenia — nie z laboratorium.\n\n'
-              'Aplikacja opiera się na trzech filarach:\n'
-              '• Uśmiech — łagodność wobec siebie\n'
-              '• Perspektywa — dystans do myśli\n'
-              '• Droga — jeden krok na raz\n\n'
-              'Nie jesteś projektem do naprawienia. Jesteś człowiekiem w drodze.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.6),
+              S.t(context, 'aboutCreatorSheetBody'),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.6),
             ),
-            SizedBox(height: 20),
-            Divider(color: AppColors.surface),
-            SizedBox(height: 12),
-            Text('About the Creator', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
-            SizedBox(height: 8),
-            Text('SoberSteps was built from personal experience.\nSmile · Perspective · Path.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5)),
-            SizedBox(height: 12),
-            Text('Sobre el Creador', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
-            SizedBox(height: 8),
-            Text('SoberSteps nació de la experiencia personal.\nSonrisa · Perspectiva · Camino.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5)),
-            SizedBox(height: 12),
-            Text('Over de Maker', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
-            SizedBox(height: 8),
-            Text('SoberSteps is gebouwd vanuit persoonlijke ervaring.\nGlimlach · Perspectief · Weg.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5)),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
           ],
         ),
       ),

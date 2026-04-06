@@ -14,19 +14,12 @@ class KarmaProvider extends ChangeNotifier {
   final _enc = EncryptionService();
   final _supabase = Supabase.instance.client;
 
-  static const List<String> eveningQuestions = [
-    'Co dzisiaj zauważyłeś w sobie, czego wczoraj nie widziałeś?',
-    'Gdybyś mógł cofnąć się do rana – co byś sobie powiedział?',
-    'Co sprawiło, że dzisiaj zostałeś chwilę dłużej?',
-    'Co było najtrudniejsze dziś – i jak to wyglądało od środka?',
-    'Ciekawe, czego nauczył Cię dzisiejszy dzień…',
-    'Co by się stało, gdybyś dał sobie jeszcze jeden dzień?',
-    'Jakie 80% dzisiaj wystarczyło?',
-  ];
+  static const int eveningQuestionCount = 7;
 
-  String get todayQuestion {
+  /// Index 0..6 — rotate daily; UI uses `S.t(context, 'karmaEveningQ$index')`.
+  int get todayQuestionIndex {
     final dayOfYear = DateTime.now().difference(DateTime(DateTime.now().year)).inDays;
-    return eveningQuestions[dayOfYear % eveningQuestions.length];
+    return dayOfYear % eveningQuestionCount;
   }
 
   Future<void> loadEntries() async {

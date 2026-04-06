@@ -1,1 +1,33 @@
 .github/workflows/
+
+# Secrets — never commit (template: assets/config.env.example → copy to assets/config.env locally)
+.env
+**/config.env
+
+# Flutter & Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+**/DerivedData/
+
+# Android
+**/local.properties
+**/key.properties
+*.jks
+*.keystore
+
+# Symbolication / obfuscation
+app.*.symbols

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../app/theme.dart';
 import '../services/analytics_service.dart';
+import '../l10n/strings.dart';
 
 /// Daily Mirror Widget — shows 1 of 5 rotating reflective questions.
 /// 4 languages: PL, EN, ES, NL. Rotates daily (day-of-year % 5).
@@ -97,7 +98,7 @@ class _RTSDailyMirrorWidgetState extends State<RTSDailyMirrorWidget> {
           Row(children: [
             const Text('🪞', style: TextStyle(fontSize: 18)),
             const SizedBox(width: 8),
-            const Text('Dzienne Lustro', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
+            Text(S.t(context, 'rtsDailyMirrorTitle'), style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
             const Spacer(),
             // Language selector
             DropdownButton<String>(
@@ -122,7 +123,7 @@ class _RTSDailyMirrorWidgetState extends State<RTSDailyMirrorWidget> {
             const SizedBox(height: 8),
             GestureDetector(
               onTap: () => setState(() => _editing = true),
-              child: const Text('Edytuj', style: TextStyle(color: AppColors.primary, fontSize: 12)),
+              child: Text(S.t(context, 'rtsDailyMirrorEdit'), style: const TextStyle(color: AppColors.primary, fontSize: 12)),
             ),
           ] else ...[
             TextField(
@@ -131,7 +132,7 @@ class _RTSDailyMirrorWidgetState extends State<RTSDailyMirrorWidget> {
               maxLength: 500,
               style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
               decoration: InputDecoration(
-                hintText: 'Twoja odpowiedź (tylko dla Ciebie)…',
+                hintText: S.t(context, 'rtsDailyMirrorHint'),
                 hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
                 filled: true,
                 fillColor: AppColors.background,
@@ -141,15 +142,15 @@ class _RTSDailyMirrorWidgetState extends State<RTSDailyMirrorWidget> {
             ),
             const SizedBox(height: 8),
             Row(children: [
-              const Text('🔒 Lokalnie, tylko u Ciebie', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+              Text(S.t(context, 'rtsDailyMirrorPrivacy'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
               const Spacer(),
               if (_saved)
-                const Text('Zapisano ✓', style: TextStyle(color: Colors.greenAccent, fontSize: 12))
+                Text(S.t(context, 'rtsDailyMirrorSaved'), style: const TextStyle(color: Colors.greenAccent, fontSize: 12))
               else
                 TextButton(
                   onPressed: _save,
                   style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(60, 30)),
-                  child: const Text('Zapisz', style: TextStyle(color: AppColors.primary, fontSize: 13)),
+                  child: Text(S.t(context, 'save'), style: const TextStyle(color: AppColors.primary, fontSize: 13)),
                 ),
             ]),
           ],

@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
 import '../widgets/pro_gate_widget.dart';
 import '../models/rts_diagnostic.dart';
+import '../l10n/strings.dart';
 
 /// RTSProgressGraphWidget — PRO only.
 /// Shows score history from rts_scores table as a line chart.
@@ -44,10 +45,10 @@ class _RTSProgressGraphWidgetState extends State<RTSProgressGraphWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(children: [
-            Text('📈', style: TextStyle(fontSize: 16)),
-            SizedBox(width: 8),
-            Text('Postęp RTS', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
+          Row(children: [
+            const Text('📈', style: TextStyle(fontSize: 16)),
+            const SizedBox(width: 8),
+            Text(S.t(context, 'rtsProgressTitle'), style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
           ]),
           const SizedBox(height: 12),
           ProGateWidget(
@@ -55,9 +56,9 @@ class _RTSProgressGraphWidgetState extends State<RTSProgressGraphWidget> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _scores.length < 2
-                    ? const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Text('Ukończ co najmniej 2 oceny, aby zobaczyć postęp.', style: TextStyle(color: AppColors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Text(S.t(context, 'rtsProgressNeedTwo'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
                       )
                     : _LineChart(scores: _scores),
           ),
@@ -124,18 +125,24 @@ class _ChartPainter extends CustomPainter {
 
     // Fill area
     final fillPath = Path()..moveTo(0, chartH);
-    for (int i = 0; i < values.length; i++) fillPath.lineTo(toOffset(i).dx, toOffset(i).dy);
+    for (int i = 0; i < values.length; i++) {
+      fillPath.lineTo(toOffset(i).dx, toOffset(i).dy);
+    }
     fillPath.lineTo((values.length - 1) * step, chartH);
     fillPath.close();
     canvas.drawPath(fillPath, fillPaint);
 
     // Line
     final path = Path()..moveTo(toOffset(0).dx, toOffset(0).dy);
-    for (int i = 1; i < values.length; i++) path.lineTo(toOffset(i).dx, toOffset(i).dy);
+    for (int i = 1; i < values.length; i++) {
+      path.lineTo(toOffset(i).dx, toOffset(i).dy);
+    }
     canvas.drawPath(path, paint);
 
     // Dots
-    for (int i = 0; i < values.length; i++) canvas.drawCircle(toOffset(i), 4, dotPaint);
+    for (int i = 0; i < values.length; i++) {
+      canvas.drawCircle(toOffset(i), 4, dotPaint);
+    }
   }
 
   @override

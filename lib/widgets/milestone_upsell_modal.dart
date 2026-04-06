@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../providers/purchase_provider.dart';
+import '../l10n/strings.dart';
 
 /// Upsell modal shown at milestone days [3, 7, 30, 90] for free users.
 /// Call via [MilestoneUpsellModal.maybeShow].
@@ -35,37 +36,27 @@ class MilestoneUpsellModal extends StatelessWidget {
 
   static const _upsellDays = {3, 7, 30, 90};
 
-  static const _copy = {
-    3: (
-      emoji: '🔥',
-      title: 'Trzy dni. Coś się zaczyna.',
-      body:
-          'Recovery+ odblokuje Streak Protection — Twój postęp jest bezpieczny nawet gdy się pokniesz.',
-    ),
-    7: (
-      emoji: '⭐',
-      title: 'Tydzień. Czas na głębszy krok.',
-      body:
-          'Napisz list do siebie za 30 dni. Naomi AI będzie przy Tobie w trudnych chwilach.',
-    ),
-    30: (
-      emoji: '🏆',
-      title: 'Miesiąc. Zasługujesz na więcej.',
-      body:
-          'Odblokuj głos Naomi, listy do przyszłego siebie i pełny moduł samowspółczucia.',
-    ),
-    90: (
-      emoji: '🧠',
-      title: '90 dni zmienia mózg.',
-      body:
-          'Twój mózg się przebudował. Recovery+ da Ci narzędzia na kolejny etap drogi.',
-    ),
+  static const _emoji = {3: '🔥', 7: '⭐', 30: '🏆', 90: '🧠'};
+
+  static const _titleKeys = {
+    3: 'milestoneUpsell3Title',
+    7: 'milestoneUpsell7Title',
+    30: 'milestoneUpsell30Title',
+    90: 'milestoneUpsell90Title',
+  };
+  static const _bodyKeys = {
+    3: 'milestoneUpsell3Body',
+    7: 'milestoneUpsell7Body',
+    30: 'milestoneUpsell30Body',
+    90: 'milestoneUpsell90Body',
   };
 
   @override
   Widget build(BuildContext context) {
-    final c = _copy[milestoneDays];
-    if (c == null) return const SizedBox.shrink();
+    final emoji = _emoji[milestoneDays];
+    final titleKey = _titleKeys[milestoneDays];
+    final bodyKey = _bodyKeys[milestoneDays];
+    if (emoji == null || titleKey == null || bodyKey == null) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
@@ -82,10 +73,10 @@ class MilestoneUpsellModal extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Text(c.emoji, style: const TextStyle(fontSize: 56)),
+          Text(emoji, style: const TextStyle(fontSize: 56)),
           const SizedBox(height: 12),
           Text(
-            c.title,
+            S.t(context, titleKey),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 22,
@@ -95,7 +86,7 @@ class MilestoneUpsellModal extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            c.body,
+            S.t(context, bodyKey),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 15,
@@ -122,18 +113,18 @@ class MilestoneUpsellModal extends StatelessWidget {
                   arguments: 'milestone_$milestoneDays',
                 );
               },
-              child: const Text(
-                'Wypróbuj Recovery+ za darmo — 7 dni',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+              child: Text(
+                S.t(context, 'milestoneUpsellCta'),
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
               ),
             ),
           ),
           const SizedBox(height: 12),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Może później',
-              style: TextStyle(color: AppColors.textSecondary),
+            child: Text(
+              S.t(context, 'cravingMaybeLater'),
+              style: const TextStyle(color: AppColors.textSecondary),
             ),
           ),
         ],

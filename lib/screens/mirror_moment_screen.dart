@@ -276,7 +276,7 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
           } catch (_) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Open your front camera to see yourself.')),
+                SnackBar(content: Text(S.t(context, 'mirrorOpenCameraHint'))),
               );
             }
           }
