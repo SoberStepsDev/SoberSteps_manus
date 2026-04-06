@@ -124,6 +124,18 @@ flutter build appbundle --release --dart-define=IS_DEVELOPMENT=false
 
 **Wersja:** `pubspec.yaml` → `version: x.y.z+NN` — **NN** (`versionCode`) musi rosnąć przy każdym nowym uploadzie tego samego pakietu.
 
+**Bezpośrednie linki (SoberSteps, konto ReturnToYourself)** — zastąp `u/0` innym indeksem konta Google, jeśli używasz wielu:
+
+| Sekcja | URL |
+|--------|-----|
+| Panel | `https://play.google.com/console/u/0/developers/5406187422596596688/app/4973377659246608619/app-dashboard` |
+| Lista sklepu (en-US) | `https://play.google.com/console/u/0/developers/5406187422596596688/app/4973377659246608619/main-store-listing` |
+| Treść aplikacji (deklaracje) | `https://play.google.com/console/u/0/developers/5406187422596596688/app/4973377659246608619/app-content/overview` |
+| Testy wewnętrzne | `https://play.google.com/console/u/0/developers/5406187422596596688/app/4973377659246608619/tracks/internal-testing` |
+| Testy zamknięte | `https://play.google.com/console/u/0/developers/5406187422596596688/app/4973377659246608619/tracks/closed-testing` |
+
+**Stan sprawdzony w konsoli (2026-04):** opis sklepu i grafiki wypełnione; *App content* → „You're all caught up”. Brak wydania na ścieżce **Internal testing** — następny krok: **Select testers** + **Create new release** + upload podpisanego `.aab`.
+
 ---
 
 ## Secrets (GitHub Actions)
