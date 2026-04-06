@@ -5,9 +5,7 @@ import '../app/theme.dart';
 import '../l10n/strings.dart';
 import '../models/return_to_self.dart';
 import '../providers/karma_provider.dart';
-import '../providers/purchase_provider.dart';
 import '../services/analytics_service.dart';
-import '../widgets/pro_gate_widget.dart';
 
 /// Karma Mirror — `/karma-mirror` → evening question from [KarmaProvider.todayQuestionIndex]
 /// + `karmaEveningQ*` keys in [strings.dart]; answers saved to `return_to_self_karma`.
@@ -27,7 +25,6 @@ class _KarmaMirrorScreenState extends State<KarmaMirrorScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (!context.read<PurchaseProvider>().isPro) return;
       context.read<KarmaProvider>().loadEntries();
       AnalyticsService().track('karma_mirror_opened');
     });
@@ -81,9 +78,7 @@ class _KarmaMirrorScreenState extends State<KarmaMirrorScreen> {
         backgroundColor: AppColors.background,
         title: Text(S.t(context, 'karmaMirror')),
       ),
-      body: ProGateWidget(
-        trigger: 'karma_mirror_gate',
-        child: karma.loading && karma.entries.isEmpty
+      body: karma.loading && karma.entries.isEmpty
             ? const Center(child: CircularProgressIndicator())
             : SafeArea(
                 child: ListView(
@@ -158,7 +153,6 @@ class _KarmaMirrorScreenState extends State<KarmaMirrorScreen> {
                   ],
                 ),
               ),
-      ),
     );
   }
 }

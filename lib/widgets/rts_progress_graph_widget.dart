@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
-import '../widgets/pro_gate_widget.dart';
 import '../models/rts_diagnostic.dart';
 import '../l10n/strings.dart';
 
-/// RTSProgressGraphWidget — PRO only.
-/// Shows score history from rts_scores table as a line chart.
+/// RTSProgressGraphWidget — score history from rts_scores (free on Self-Hatred path).
 class RTSProgressGraphWidget extends StatefulWidget {
   const RTSProgressGraphWidget({super.key});
   @override
@@ -51,17 +49,14 @@ class _RTSProgressGraphWidgetState extends State<RTSProgressGraphWidget> {
             Text(S.t(context, 'rtsProgressTitle'), style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
           ]),
           const SizedBox(height: 12),
-          ProGateWidget(
-            trigger: 'rts_progress_graph',
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _scores.length < 2
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Text(S.t(context, 'rtsProgressNeedTwo'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
-                      )
-                    : _LineChart(scores: _scores),
-          ),
+          _loading
+              ? const Center(child: CircularProgressIndicator())
+              : _scores.length < 2
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Text(S.t(context, 'rtsProgressNeedTwo'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
+                    )
+                  : _LineChart(scores: _scores),
         ],
       ),
     );

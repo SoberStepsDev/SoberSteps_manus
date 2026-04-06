@@ -13,8 +13,26 @@ class PremiumWelcomeScreen extends StatefulWidget {
 }
 
 class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
+  static const _benefitKeys = <String>[
+    'recoveryWelcomeBenefit1',
+    'recoveryWelcomeBenefit2',
+    'recoveryWelcomeBenefit3',
+    'recoveryWelcomeBenefit4',
+  ];
+
   final _pageController = PageController();
   int _page = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!context.read<PurchaseProvider>().isPremium) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -25,9 +43,8 @@ class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
   void _next() {
     if (_page < 2) {
       _pageController.nextPage(duration: 400.ms, curve: Curves.easeInOut);
-      setState(() => _page++);
     } else {
-      Navigator.of(context).pushReplacementNamed('/home');
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
     }
   }
 
@@ -39,6 +56,7 @@ class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
         child: PageView(
           controller: _pageController,
           physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: (i) => setState(() => _page = i),
           children: [
             _buildRecoveryPlusPage(context),
             _buildPage(
@@ -84,7 +102,7 @@ class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.primary),
           ),
           const SizedBox(height: 28),
-          for (var i = 1; i <= 4; i++) ...[
+          for (var i = 0; i < _benefitKeys.length; i++) ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -92,13 +110,13 @@ class _PremiumWelcomeScreenState extends State<PremiumWelcomeScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    S.t(context, 'recoveryWelcomeBenefit$i'),
+                    S.t(context, _benefitKeys[i]),
                     style: const TextStyle(fontSize: 15, height: 1.35, color: AppColors.textSecondary),
                   ),
                 ),
               ],
             ),
-            if (i < 4) const SizedBox(height: 12),
+            if (i < _benefitKeys.length - 1) const SizedBox(height: 12),
           ],
           const SizedBox(height: 40),
           SizedBox(

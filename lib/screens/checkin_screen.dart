@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../providers/journal_provider.dart';
+import '../providers/sobriety_provider.dart';
 import '../constants/app_constants.dart';
 import '../l10n/strings.dart';
 
@@ -300,6 +301,8 @@ class _CheckinScreenState extends State<CheckinScreen> {
       return;
     }
 
+    await context.read<SobrietyProvider>().refreshStreak();
+    if (!mounted) return;
     _showReaction();
   }
 
