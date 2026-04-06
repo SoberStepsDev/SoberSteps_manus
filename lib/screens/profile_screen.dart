@@ -1,3 +1,5 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -198,6 +200,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       () => Navigator.pushNamed(context, '/auth')),
                   _tile(context, Icons.person_add, S.t(context, 'register'),
                       () => Navigator.pushNamed(context, '/register')),
+                ],
+                if (kDebugMode) ...[
+                  const _SectionLabel('Debug'),
+                  ListTile(
+                    leading: const Icon(Icons.bug_report_outlined, color: AppColors.error),
+                    title: const Text('Crashlytics test crash',
+                        style: TextStyle(color: AppColors.textPrimary)),
+                    subtitle: const Text(
+                      'Debug APK only. App will close; check Firebase Console in a few minutes.',
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    onTap: () => FirebaseCrashlytics.instance.crash(),
+                  ),
                 ],
                 const SizedBox(height: 32),
                 Center(child: Text(S.t(context, 'version'),

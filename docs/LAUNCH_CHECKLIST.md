@@ -74,6 +74,15 @@
 
 ---
 
+## Weryfikacja na urządzeniu (krótki protokół)
+
+1. **Build debug + instalacja:** `flutter build apk --debug` → `adb install -r build/app/outputs/flutter-apk/app-debug.apk` (telefon z USB debugging).
+2. **RevenueCat (sandbox Google Play):** konto testowe / licencjobiorca w Play Console → `/paywall` → zakup testowy → w aplikacji odblokowany PRO (`PurchaseProvider.isPro` / badge Recovery+ na profilu). Po sukcesie zaznacz powyżej „Test sandbox”.
+3. **OneSignal:** po FCM + `google-services.json` → uruchom apkę → **Profil → powiadomienia** lub onboarding (żądanie zgody) → w OneSignal: *Audience → Subscriptions* / „Check Subscribed Users”. Opcjonalnie wyślij testowy push z dashboardu.
+4. **Crashlytics:** w Firebase Console włącz Crashlytics dla projektu → na **debug APK**: *Profil* → sekcja **Debug** → „Crashlytics test crash” (tylko `kDebugMode`) → po kilku minutach widać crash w konsoli. **Nie** używaj tego przycisku na buildzie release sklepowym.
+
+---
+
 ## Android Build
 
 - [x] `applicationId = "com.sobersteps.app"`

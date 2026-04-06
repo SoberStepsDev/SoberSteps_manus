@@ -68,6 +68,10 @@ void main() async {
     
     try {
       await Firebase.initializeApp();
+      // Debug / `--dart-define=IS_DEVELOPMENT=true`: enable uploads (Crashlytics is off in debug by default).
+      if (kDebugMode || AppConstants.isDevelopment) {
+        await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+      }
       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
       PlatformDispatcher.instance.onError = (error, stack) {
         FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
