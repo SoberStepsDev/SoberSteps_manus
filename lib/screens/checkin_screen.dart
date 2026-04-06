@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../providers/journal_provider.dart';
+import '../providers/sobriety_provider.dart';
 import '../constants/app_constants.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
 
 class CheckinScreen extends StatefulWidget {
   const CheckinScreen({super.key});
@@ -121,7 +123,7 @@ class _CheckinScreenState extends State<CheckinScreen> {
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textPrimary),
                             ),
                             subtitle: Text(
-                              '${e.createdAt.day}.${e.createdAt.month}.${e.createdAt.year}',
+                              LocaleDates.yMd(context, e.createdAt),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           );
@@ -300,6 +302,8 @@ class _CheckinScreenState extends State<CheckinScreen> {
       return;
     }
 
+    await context.read<SobrietyProvider>().refreshStreak();
+    if (!mounted) return;
     _showReaction();
   }
 

@@ -110,7 +110,7 @@ class MilestoneUpsellModal extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed(
                   '/paywall',
-                  arguments: 'milestone_$milestoneDays',
+                  arguments: 'milestone_upsell_$milestoneDays',
                 );
               },
               child: Text(

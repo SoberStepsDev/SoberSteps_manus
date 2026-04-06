@@ -196,20 +196,22 @@ class WallOfStrengthPost {
     this.anonymous = true,
   });
 
-  factory WallOfStrengthPost.fromJson(Map<String, dynamic> j) =>
-      WallOfStrengthPost(
-        id: j['id'],
-        userId: j['user_id'],
-        content: j['content'],
-        timestamp: DateTime.parse(j['timestamp']),
-        anonymous: j['anonymous'] ?? true,
-      );
+  factory WallOfStrengthPost.fromJson(Map<String, dynamic> j) {
+    final ts = j['created_at'] ?? j['timestamp'];
+    return WallOfStrengthPost(
+      id: j['id'],
+      userId: j['user_id'] ?? '',
+      content: j['content'] ?? '',
+      timestamp: ts != null ? DateTime.parse(ts as String) : DateTime.now(),
+      anonymous: j['anonymous'] ?? true,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'user_id': userId,
         'content': content,
-        'timestamp': timestamp.toIso8601String(),
+        'created_at': timestamp.toIso8601String(),
         'anonymous': anonymous,
       };
 }

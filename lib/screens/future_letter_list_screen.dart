@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import '../formatting/locale_dates.dart';
 import '../app/theme.dart';
 import '../providers/future_letter_provider.dart';
 import '../models/future_letter.dart';
@@ -54,7 +54,6 @@ class _LetterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('d MMM yyyy');
     return GestureDetector(
       onTap: letter.isDelivered
           ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => FutureLetterReadScreen(letter: letter)))
@@ -85,7 +84,7 @@ class _LetterCard extends StatelessWidget {
                       color: letter.isDelivered ? AppColors.gold : AppColors.textPrimary,
                     ),
                   ),
-                  Text('${S.t(context, 'delivery')} ${dateFormat.format(letter.deliverAt)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  Text('${S.t(context, 'delivery')} ${LocaleDates.yMMMd(context, letter.deliverAt)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                 ],
               ),
             ),

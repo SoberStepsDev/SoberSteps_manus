@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
 import '../models/return_to_self.dart';
 import '../providers/karma_provider.dart';
 import '../services/analytics_service.dart';
+import '../widgets/pro_gate_widget.dart';
 
 /// Karma Mirror — `/karma-mirror` → evening question from [KarmaProvider.todayQuestionIndex]
 /// + `karmaEveningQ*` keys in [strings.dart]; answers saved to `return_to_self_karma`.
@@ -24,6 +26,7 @@ class _KarmaMirrorScreenState extends State<KarmaMirrorScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<KarmaProvider>().loadEntries();
       AnalyticsService().track('karma_mirror_opened');
     });
@@ -77,81 +80,84 @@ class _KarmaMirrorScreenState extends State<KarmaMirrorScreen> {
         backgroundColor: AppColors.background,
         title: Text(S.t(context, 'karmaMirror')),
       ),
-      body: karma.loading && karma.entries.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : SafeArea(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                children: [
-                  Text(
-                    S.t(context, 'eveningQuestion'),
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    question,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    S.t(context, 'karmaMirrorDesc'),
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _controller,
-                    maxLines: 5,
-                    style: const TextStyle(color: AppColors.textPrimary),
-                    decoration: InputDecoration(
-                      hintText: S.t(context, 'karmaHint'),
-                      hintStyle: const TextStyle(color: AppColors.textSecondary),
-                      filled: true,
-                      fillColor: AppColors.surface,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _saving ? null : _submit,
-                      child: _saving
-                          ? const SizedBox(
-                              height: 22,
-                              width: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Text(S.t(context, 'karmaLeave')),
-                    ),
-                  ),
-                  if (karma.entries.isNotEmpty) ...[
-                    const SizedBox(height: 28),
+      body: ProGateWidget(
+        trigger: 'karma_mirror_gate',
+        child: karma.loading && karma.entries.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : SafeArea(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                  children: [
                     Text(
-                      S.t(context, 'karmaLookBack'),
+                      S.t(context, 'eveningQuestion'),
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                         letterSpacing: 1.2,
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    Text(
+                      question,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      S.t(context, 'karmaMirrorDesc'),
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _controller,
+                      maxLines: 5,
+                      style: const TextStyle(color: AppColors.textPrimary),
+                      decoration: InputDecoration(
+                        hintText: S.t(context, 'karmaHint'),
+                        hintStyle: const TextStyle(color: AppColors.textSecondary),
+                        filled: true,
+                        fillColor: AppColors.surface,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 12),
-                    ...karma.entries.map((e) => _KarmaHistoryTile(entry: e, karma: karma)),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _saving ? null : _submit,
+                        child: _saving
+                            ? const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : Text(S.t(context, 'karmaLeave')),
+                      ),
+                    ),
+                    if (karma.entries.isNotEmpty) ...[
+                      const SizedBox(height: 28),
+                      Text(
+                        S.t(context, 'karmaLookBack'),
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ...karma.entries.map((e) => _KarmaHistoryTile(entry: e, karma: karma)),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }
@@ -183,7 +189,7 @@ class _KarmaHistoryTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${entry.timestamp.year}-${entry.timestamp.month.toString().padLeft(2, '0')}-${entry.timestamp.day.toString().padLeft(2, '0')}',
+                  LocaleDates.yMd(context, entry.timestamp),
                   style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                 ),
                 const SizedBox(height: 6),

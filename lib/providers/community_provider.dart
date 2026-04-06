@@ -70,22 +70,26 @@ class CommunityProvider extends ChangeNotifier {
   Future<void> toggleLike(CommunityPost post) async {
     final idx = _posts[post.category]?.indexWhere((p) => p.id == post.id) ?? -1;
     if (idx == -1) return;
-    final newCount = post.likesCount + 1;
-    _posts[post.category]![idx] = CommunityPost(
-      id: post.id,
-      userId: post.userId,
-      category: post.category,
-      content: post.content,
-      likesCount: newCount,
-      isFlagged: post.isFlagged,
-      flagCount: post.flagCount,
-      createdAt: post.createdAt,
-    );
-    notifyListeners();
     try {
-      await Supabase.instance.client
-          .from('community_posts')
-          .update({'likes_count': newCount}).eq('id', post.id);
+      final raw = await Supabase.instance.client.rpc(
+        'increment_community_post_likes',
+        params: {'p_post_id': post.id},
+      );
+      if (raw == null) return;
+      final newCount = raw is int ? raw : int.tryParse(raw.toString());
+      if (newCount == null) return;
+      _posts[post.category]![idx] = CommunityPost(
+        id: post.id,
+        userId: post.userId,
+        category: post.category,
+        content: post.content,
+        likesCount: newCount,
+        isFlagged: post.isFlagged,
+        flagCount: post.flagCount,
+        createdAt: post.createdAt,
+      );
+      notifyListeners();
+      _analytics.track(AnalyticsService.eCommunityPostLiked, {'post_id': post.id});
     } catch (_) {}
   }
 

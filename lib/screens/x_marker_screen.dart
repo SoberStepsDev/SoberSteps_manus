@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../app/theme.dart';
+import '../providers/purchase_provider.dart';
 import '../services/analytics_service.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
+import '../widgets/pro_gate_widget.dart';
 
 /// X-Marker — daily self-care act checkbox.
 /// Table: daily_self_acts (id, user_id, note, created_at)
@@ -23,8 +27,15 @@ class _XMarkerScreenState extends State<XMarkerScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
-    AnalyticsService().track(AnalyticsService.eSelfCompassionOpened, {'card': 'x_marker'});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!context.read<PurchaseProvider>().isPro) {
+        setState(() => _loading = false);
+        return;
+      }
+      _load();
+      AnalyticsService().track(AnalyticsService.eSelfCompassionOpened, {'card': 'x_marker'});
+    });
   }
 
   Future<void> _load() async {
@@ -93,9 +104,11 @@ class _XMarkerScreenState extends State<XMarkerScreen> {
         title: Text(S.t(context, 'xMarkerTitle'), style: const TextStyle(color: AppColors.textPrimary)),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      body: ProGateWidget(
+        trigger: 'x_marker_gate',
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -144,7 +157,7 @@ class _XMarkerScreenState extends State<XMarkerScreen> {
                       ? Center(child: Text(S.t(context, 'xMarkerNoEntries'), style: const TextStyle(color: AppColors.textSecondary)))
                       : ListView.builder(
                           itemCount: _acts.length,
-                          itemBuilder: (_, i) {
+                          itemBuilder: (context, i) {
                             final a = _acts[i];
                             final dt = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime.now();
                             return Container(
@@ -155,13 +168,14 @@ class _XMarkerScreenState extends State<XMarkerScreen> {
                                 const Text('✕', style: TextStyle(color: AppColors.primary, fontSize: 18, fontWeight: FontWeight.w700)),
                                 const SizedBox(width: 12),
                                 Expanded(child: Text(a['note'] ?? '', style: const TextStyle(color: AppColors.textPrimary, fontSize: 14))),
-                                Text('${dt.day}.${dt.month}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                                Text(LocaleDates.mdShort(context, dt), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                               ]),
                             );
                           },
                         ),
             ),
           ],
+        ),
         ),
       ),
     );

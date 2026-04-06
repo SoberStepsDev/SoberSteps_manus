@@ -21,7 +21,7 @@ class NotificationService {
       debugPrint('[NotificationService] skipped — no ONESIGNAL_APP_ID');
       return;
     }
-    OneSignal.initialize(appId);
+    await OneSignal.initialize(appId);
     _initialized = true;
     debugPrint('[NotificationService] initialized');
   }
@@ -30,6 +30,9 @@ class NotificationService {
     if (!_initialized) return false;
     final accepted = await OneSignal.Notifications.requestPermission(true);
     debugPrint('[NotificationService] permission: $accepted');
+    if (accepted) {
+      await OneSignal.User.pushSubscription.optIn();
+    }
     return accepted;
   }
 

@@ -1,1 +1,48 @@
-{}
+{
+  "project_info": {
+    "project_number": "464926136049",
+    "project_id": "sobersteps-5eb8b",
+    "storage_bucket": "sobersteps-5eb8b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464926136049:android:bbfa7d1bcfb1fccf683b50",
+        "android_client_info": {
+          "package_name": "com.sobersteps.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIfH8Jvz6BODmKKU9IXpYaVZQGkugEgYA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464926136049:android:b9a92c72fcc0b383683b50",
+        "android_client_info": {
+          "package_name": "com.soberstepsod.soberstepsod"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIfH8Jvz6BODmKKU9IXpYaVZQGkugEgYA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

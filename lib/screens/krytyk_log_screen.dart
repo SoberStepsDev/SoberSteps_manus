@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../app/theme.dart';
+import '../providers/purchase_provider.dart';
 import '../services/analytics_service.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
+import '../widgets/pro_gate_widget.dart';
 
 /// Inner Critic Log — records critical thoughts and reframes them as curiosity.
 /// Table: inner_critic_log (id, user_id, content, created_at)
@@ -22,8 +26,15 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
-    AnalyticsService().track(AnalyticsService.eSelfCompassionOpened, {'card': 'inner_critic'});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!context.read<PurchaseProvider>().isPro) {
+        setState(() => _loading = false);
+        return;
+      }
+      _load();
+      AnalyticsService().track(AnalyticsService.eSelfCompassionOpened, {'card': 'inner_critic'});
+    });
   }
 
   Future<void> _load() async {
@@ -90,8 +101,10 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
         title: Text(S.t(context, 'krytykLogTitle'), style: const TextStyle(color: AppColors.textPrimary)),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
-      body: Column(
-        children: [
+      body: ProGateWidget(
+        trigger: 'krytyk_log_gate',
+        child: Column(
+          children: [
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -133,7 +146,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: _entries.length,
-                        itemBuilder: (_, i) {
+                        itemBuilder: (ctx, i) {
                           final e = _entries[i];
                           final dt = DateTime.tryParse(e['created_at'] ?? '') ?? DateTime.now();
                           return Dismissible(
@@ -150,7 +163,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
                                 children: [
                                   Text(e['content'] ?? '', style: const TextStyle(color: AppColors.textPrimary, fontSize: 14)),
                                   const SizedBox(height: 4),
-                                  Text('${dt.day}.${dt.month}.${dt.year}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                                  Text(LocaleDates.yMd(ctx, dt), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
                                 ],
                               ),
                             ),
@@ -159,6 +172,7 @@ class _KrytykLogScreenState extends State<KrytykLogScreen> {
                       ),
           ),
         ],
+        ),
       ),
     );
   }

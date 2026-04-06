@@ -6,12 +6,7 @@ import '../providers/purchase_provider.dart';
 import '../l10n/strings.dart';
 
 /// SelfCompassionScreen — Return to Self module (Faza 14)
-/// 5 CBT cards:
-///   1. Inner Critic Log
-///   2. Self-Experiments
-///   3. Compassion Letter (Future Letters bridge)
-///   4. X-Marker (Daily Self Acts)
-///   5. Perfectionism (PRO only)
+/// 5 CBT cards; Krytyk log, experiments, X-Marker, patterns — Recovery+.
 class SelfCompassionScreen extends StatelessWidget {
   const SelfCompassionScreen({super.key});
 
@@ -22,7 +17,7 @@ class SelfCompassionScreen extends StatelessWidget {
       titleKey: 'scMenuInnerCriticTitle',
       subtitleKey: 'scMenuInnerCriticSub',
       route: '/inner-critic-log',
-      proOnly: false,
+      proOnly: true,
     ),
     _Card(
       id: 'self_experiments',
@@ -30,7 +25,7 @@ class SelfCompassionScreen extends StatelessWidget {
       titleKey: 'scMenuExperimentTitle',
       subtitleKey: 'scMenuExperimentSub',
       route: '/experiment',
-      proOnly: false,
+      proOnly: true,
     ),
     _Card(
       id: 'compassion_letter',
@@ -46,7 +41,7 @@ class SelfCompassionScreen extends StatelessWidget {
       titleKey: 'scMenuXMarkerTitle',
       subtitleKey: 'scMenuXMarkerSub',
       route: '/x-marker',
-      proOnly: false,
+      proOnly: true,
     ),
     _Card(
       id: 'krytyk_patterns',

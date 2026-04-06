@@ -23,6 +23,12 @@
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
 
+# OneSignal + FCM (release minify)
+-keep class com.onesignal.** { *; }
+-dontwarn com.onesignal.**
+-keep class com.google.firebase.** { *; }
+-dontwarn com.google.firebase.**
+
 # RevenueCat
 -keep class com.revenuecat.purchases.** { *; }
 -dontwarn com.revenuecat.purchases.**

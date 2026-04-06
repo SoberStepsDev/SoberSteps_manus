@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../models/future_letter.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
 import '../services/encryption_service.dart';
 
 class FutureLetterReadScreen extends StatefulWidget {
@@ -56,7 +57,7 @@ class _FutureLetterReadScreenState extends State<FutureLetterReadScreen> {
               ).animate().fadeIn(delay: 300.ms, duration: 600.ms),
               const SizedBox(height: 24),
               Text(
-                'Napisany ${_formatDate(widget.letter.createdAt)}',
+                S.t(context, 'letterWrittenOn').replaceAll('{date}', LocaleDates.yMd(context, widget.letter.createdAt)),
                 style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
             ],
@@ -64,9 +65,5 @@ class _FutureLetterReadScreenState extends State<FutureLetterReadScreen> {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}.${date.month}.${date.year}';
   }
 }

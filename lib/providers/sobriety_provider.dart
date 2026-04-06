@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/app_constants.dart';
+import '../services/streak_protection_service.dart';
 
 
 class SobrietyProvider extends ChangeNotifier {
   int _daysSober = 0;
   int _hoursSober = 0;
   int _streakDays = 0;
+  bool _streakAtRisk = false;
+  bool _streakProtectionGraceActive = false;
   DateTime? _sobrietyStartDate;
   int? _pendingMilestone;
   bool _loading = false;
@@ -15,6 +18,10 @@ class SobrietyProvider extends ChangeNotifier {
   int get daysSober => _daysSober;
   int get hoursSober => _hoursSober;
   int get streakDays => _streakDays;
+  /// No check-in today, had one yesterday, and grace is not active — Recovery+ can use protection.
+  bool get streakAtRisk => _streakAtRisk;
+  /// Grace is covering today (no check-in yet; streak continues from yesterday).
+  bool get streakProtectionGraceActive => _streakProtectionGraceActive;
   DateTime? get sobrietyStartDate => _sobrietyStartDate;
   int? get pendingMilestone => _pendingMilestone;
   bool get loading => _loading;
@@ -106,16 +113,49 @@ class SobrietyProvider extends ChangeNotifier {
         final dt = DateTime.parse(r['created_at'] as String).toLocal();
         checkinDays.add('${dt.year}-${dt.month}-${dt.day}');
       }
+      final prefs = await SharedPreferences.getInstance();
+      final now = DateTime.now();
+      final todayKey = '${now.year}-${now.month}-${now.day}';
+      final yesterday = now.subtract(const Duration(days: 1));
+      final yesterdayKey = '${yesterday.year}-${yesterday.month}-${yesterday.day}';
+
+      if (checkinDays.contains(todayKey)) {
+        await StreakProtectionService.clearGrace(prefs);
+      }
+
+      final grace = await StreakProtectionService.hasActiveGraceToday(prefs);
+
       int streak = 0;
-      var day = DateTime.now();
+      var day = now;
+      if (!checkinDays.contains(todayKey) &&
+          checkinDays.contains(yesterdayKey) &&
+          grace) {
+        day = yesterday;
+      }
       while (checkinDays.contains('${day.year}-${day.month}-${day.day}')) {
         streak++;
         day = day.subtract(const Duration(days: 1));
       }
       _streakDays = streak;
-      final prefs = await SharedPreferences.getInstance();
+
+      _streakAtRisk = !checkinDays.contains(todayKey) &&
+          checkinDays.contains(yesterdayKey) &&
+          !grace;
+      _streakProtectionGraceActive = grace &&
+          !checkinDays.contains(todayKey) &&
+          checkinDays.contains(yesterdayKey);
+
       await prefs.setInt('cached_streak_days', streak);
     } catch (_) {}
+  }
+
+  /// Reload journal-based streak from Supabase (e.g. after activating streak protection or a check-in).
+  Future<void> refreshStreak() async {
+    final client = Supabase.instance.client;
+    final user = client.auth.currentUser;
+    if (user == null) return;
+    await _loadStreak(client, user.id);
+    notifyListeners();
   }
 
   Future<void> setSobrietyStartDate(DateTime date) async {

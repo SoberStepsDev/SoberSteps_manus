@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../l10n/strings.dart';
 import '../providers/sobriety_provider.dart';
+import '../widgets/pro_gate_widget.dart';
 
 class SavingsHealthScreen extends StatefulWidget {
   const SavingsHealthScreen({super.key});
@@ -38,21 +40,27 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
     final days = context.watch<SobrietyProvider>().daysSober;
     final saved = days * _dailyCost;
     final hours = days * 24;
+    final loc = Localizations.localeOf(context).toString();
+    final nf = NumberFormat.decimalPatternDigits(locale: loc, decimalDigits: 0);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(S.t(context, 'savingsHealth'))),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
+      body: ProGateWidget(
+        trigger: 'savings_health_gate',
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
           children: [
             // Money saved
             _BigCard(
               icon: Icons.savings_rounded,
               color: AppColors.gold,
-              title: '\$${saved.toStringAsFixed(0)}',
+              title: nf.format(saved),
               subtitle: S.t(context, 'saved'),
             ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
+            const SizedBox(height: 8),
+            Text(S.t(context, 'savingsRoughEstimate'), textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
             const SizedBox(height: 12),
             _CostEditor(dailyCost: _dailyCost, onChanged: _setCost),
             const SizedBox(height: 24),
@@ -92,6 +100,7 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
             ),
             const SizedBox(height: 32),
           ],
+        ),
         ),
       ),
     );
@@ -136,6 +145,8 @@ class _CostEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = Localizations.localeOf(context).toString();
+    final nf = NumberFormat.decimalPatternDigits(locale: loc, decimalDigits: 0);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12)),
@@ -144,9 +155,8 @@ class _CostEditor extends StatelessWidget {
           const Icon(Icons.edit, size: 16, color: AppColors.textSecondary),
           const SizedBox(width: 8),
           Text(S.t(context, 'dailyCost'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-          const Text('\$', style: TextStyle(color: AppColors.textPrimary)),
           Expanded(child: Slider(value: dailyCost, min: 1, max: 100, activeColor: AppColors.gold, onChanged: onChanged)),
-          Text('\$${dailyCost.toStringAsFixed(0)}${S.t(context, 'perDay')}', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w600)),
+          Text('${nf.format(dailyCost)}${S.t(context, 'perDay')}', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w600)),
         ],
       ),
     );

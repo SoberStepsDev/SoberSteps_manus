@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -21,6 +22,7 @@ import '../screens/future_letter_read_screen.dart';
 import '../l10n/strings.dart';
 import '../widgets/daily_perspective_widget.dart';
 import '../services/mirror_mind_service.dart';
+import '../services/streak_protection_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -222,6 +224,11 @@ class _HomeTabState extends State<_HomeTab> {
                   const SizedBox(height: 8),
                   _StreakBadge(streak: sobriety.streakDays),
                 ],
+                if (purchase.isPremium &&
+                    (sobriety.streakAtRisk || sobriety.streakProtectionGraceActive)) ...[  
+                  const SizedBox(height: 10),
+                  const _StreakProtectionHomeRow(),
+                ],
                 const SizedBox(height: 24),
                 _ProgressBar(progress: sobriety.progressToNextMilestone, daysToGo: sobriety.daysToNextMilestone, nextMilestone: sobriety.nextMilestone),
                 const SizedBox(height: 16),
@@ -347,33 +354,41 @@ class _SavingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed('/savings'),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.gold.withValues(alpha: 0.2)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.savings_rounded, color: AppColors.gold, size: 28),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('\$${(days * 15).toStringAsFixed(0)} ${S.t(context, 'saved')}', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700, fontSize: 16)),
-                  Text(S.t(context, 'tapForHealth'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-                ],
-              ),
+    final loc = Localizations.localeOf(context).toString();
+    final nf = NumberFormat.decimalPatternDigits(locale: loc, decimalDigits: 0);
+    return FutureBuilder<double>(
+      future: SharedPreferences.getInstance().then((p) => p.getDouble('daily_substance_cost') ?? 15.0),
+      builder: (context, snap) {
+        final daily = snap.data ?? 15.0;
+        return GestureDetector(
+          onTap: () => Navigator.of(context).pushNamed('/savings'),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.gold.withValues(alpha: 0.2)),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
-          ],
-        ),
-      ),
+            child: Row(
+              children: [
+                const Icon(Icons.savings_rounded, color: AppColors.gold, size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${nf.format(days * daily)} ${S.t(context, 'saved')}', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700, fontSize: 16)),
+                      Text(S.t(context, 'tapForHealth'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -445,6 +460,101 @@ class _StreakBadge extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _StreakProtectionHomeRow extends StatelessWidget {
+  const _StreakProtectionHomeRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final sobriety = context.watch<SobrietyProvider>();
+    final purchase = context.watch<PurchaseProvider>();
+
+    if (sobriety.streakProtectionGraceActive) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.shield_rounded, color: AppColors.primary, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                S.t(context, 'streakProtectionOn'),
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (!sobriety.streakAtRisk) return const SizedBox.shrink();
+
+    return FutureBuilder<bool>(
+      key: ValueKey<String>(
+        '${sobriety.streakAtRisk}_${sobriety.streakProtectionGraceActive}_${sobriety.streakDays}_${purchase.isPremium}',
+      ),
+      future: SharedPreferences.getInstance().then(
+        (p) => StreakProtectionService.canUse(p, purchase.isPremium),
+      ),
+      builder: (context, snap) {
+        final canUse = snap.data ?? false;
+        if (!canUse) {
+          return Text(
+            S.t(context, 'streakProtectionLimitReached'),
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          );
+        }
+        return OutlinedButton.icon(
+          onPressed: () async {
+            HapticFeedback.lightImpact();
+            final ok = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                backgroundColor: AppColors.surface,
+                content: Text(S.t(context, 'streakProtection')),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: Text(S.t(context, 'cancel')),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: Text(S.t(context, 'streakProtectionActivate')),
+                  ),
+                ],
+              ),
+            );
+            if (ok != true || !context.mounted) return;
+            final prefs = await SharedPreferences.getInstance();
+            final activated =
+                await StreakProtectionService.tryActivate(prefs, purchase.isPremium);
+            if (!context.mounted) return;
+            if (activated) {
+              await context.read<SobrietyProvider>().refreshStreak();
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(S.t(context, 'streakProtectionOn'))),
+              );
+            }
+          },
+          icon: const Icon(Icons.shield_outlined, size: 18),
+          label: Text(S.t(context, 'streakProtectionActivate')),
+        );
+      },
     );
   }
 }

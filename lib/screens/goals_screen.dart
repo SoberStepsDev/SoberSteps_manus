@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../app/theme.dart';
 import '../providers/sobriety_provider.dart';
+import '../widgets/pro_gate_widget.dart';
 import '../providers/journal_provider.dart';
 import '../l10n/strings.dart';
 
@@ -55,9 +56,11 @@ class _GoalsScreenState extends State<GoalsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(S.t(context, 'goalsAndRewards'))),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
+      body: ProGateWidget(
+        trigger: 'goals_gate',
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
           if (nextMilestone != null) ...[
             Text(S.t(context, 'nextMilestone'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
             const SizedBox(height: 12),
@@ -76,6 +79,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
             unit: g.unit,
           )),
         ],
+        ),
       ),
     );
   }

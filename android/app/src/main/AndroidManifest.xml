@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Android 13+ runtime permission for push (OneSignal / FCM). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <!-- Required for Android 13+ (API 33+): declare Advertising ID usage.
          RevenueCat SDK may access it for attribution/analytics purposes. -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import '../formatting/locale_dates.dart';
 import '../app/theme.dart';
 import '../constants/app_constants.dart';
 import '../providers/community_provider.dart';
@@ -219,7 +219,7 @@ class _PostCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Text(DateFormat('d MMM, HH:mm').format(post.createdAt), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+              Text(LocaleDates.dMMMHm(context, post.createdAt), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
               const SizedBox(width: 8),
               GestureDetector(
                 onTap: () => _showReportMenu(context),

@@ -1,6 +1,6 @@
 # SoberSteps — Launch Checklist
 
-> Ostatnia aktualizacja: Sesja 20 Fazy 2
+> Ostatnia aktualizacja: 2026-04-06 (Sesja 21 — Recovery+ Audit)
 
 ---
 
@@ -8,7 +8,7 @@
 
 - [x] Wszystkie tabele z RLS (74+ polityk)
 
-- [x] RPC: `get_days_sober`, `check_checkin_rate_limit`, `check_post_rate_limit`, `check_three_am_rate_limit`, `check_letter_rate_limit`, `flag_post`, `get_ab_variant`
+- [x] RPC: `get_days_sober`, `check_checkin_rate_limit`, `check_post_rate_limit`, `check_three_am_rate_limit`, `check_letter_rate_limit`, `flag_post`, `get_ab_variant(p_user_id)`
 
 - [x] Edge Functions: `moderate_three_am_post`, `notify_users`, `naomi-feedback`, `send_welcome_email`, `send_moderation_email_brevo`, `crash-log-feedback`, `send_confirmation_email`
 
@@ -31,6 +31,22 @@
 - [ ] **⚠️ RĘCZNIE**: Skonfigurować App Store Connect (iOS) jeśli dotyczy
 
 - [ ] Test sandbox: zakup → `entitlements['pro'].isActive == true`
+
+---
+
+## Recovery+ Feature Gating ✅
+
+- [x] `ProGateWidget` — blur overlay + CTA → `/paywall`
+
+- [x] `PurchaseProvider` — CustomerInfo listener (`onCustomerInfoUpdated`), AB variant z Supabase (`get_ab_variant`)
+
+- [x] Feature gates zaimplementowane: naomi, craving_surf soundscapes, return_to_self (PRO paths), future_letters (limit 1 free), krytyk_patterns, milestones celebration, trigger_tracker, accountability, crash_log (save reflection), streak_protection_service, tts_service (milestone voice)
+
+- [x] Feature gate audit: `savings_health`, `goals`, `mirror_moment`, `experiment`, `x_marker`, `krytyk_log` — `ProGateWidget`; **karma_mirror** — dodany `karma_mirror_gate` (2026-04)
+
+- [x] `PremiumWelcomeScreen` — `isPro`, nawigacja → `/home`; analytics `premium_welcome_viewed`
+
+- [x] Lejek free→PRO: `pro_gate_cta` + poprawne `arguments` trasy `/paywall` (`trigger`); po zakupie → `/premium-welcome`; job CI `integration-test-android`
 
 ---
 
@@ -106,7 +122,7 @@ Dodać w: Settings → Secrets → Actions:
 
 - [x] `assets/audio/craving/` — 3 pliki MP3
 
-- [ ] `assets/voice/` — Naomi voice files (ElevenLabs) — **BRAKUJE**
+- [ ] `assets/voice/` — Naomi voice files (ElevenLabs, voice ID: `2Hw5QTX3wstf1sLYfhhk`) — **BRAKUJE**
 
 - [ ] `assets/audio/three_am/` — sprawdzić zawartość
 
@@ -120,11 +136,11 @@ Dodać w: Settings → Secrets → Actions:
 
 - [ ] Terms of Service URL: `AppConstants.termsUrl`
 
-- [ ] SAMHSA banner widoczny na ProfileScreen (non-dismissible) ✅
+- [x] SAMHSA banner widoczny na ProfileScreen (non-dismissible)
 
-- [ ] Medical Disclaimer w kroku 1 onboardingu ✅
+- [x] Medical Disclaimer w kroku 1 onboardingu
 
-- [ ] Age Gate (18+) w kroku 1 onboardingu ✅
+- [x] Age Gate (18+) w kroku 1 onboardingu
 
 - [ ] Data Safety form w Google Play Console
 
@@ -178,4 +194,4 @@ flutter build appbundle --release \
 | S18 | MirrorMind Data Foundation | ✅ |
 | S19 | Security + Offline Sync | ✅ |
 | S20 | Launch Prep | ✅ |
-
+| S21 | Recovery+ Audit & Completion | ⏳ (patrz `CURSOR_PROMPT_RECOVERY_PLUS.md`) |

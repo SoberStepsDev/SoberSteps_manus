@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../app/theme.dart';
+import '../providers/purchase_provider.dart';
 import '../services/analytics_service.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
+import '../widgets/pro_gate_widget.dart';
 
 /// Self-Experiments screen — 3-day behavioral experiment.
 /// Table: self_experiments (id, user_id, thought, action, results jsonb, created_at)
@@ -23,8 +27,15 @@ class _ExperimentScreenState extends State<ExperimentScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
-    AnalyticsService().track(AnalyticsService.eSelfCompassionOpened, {'card': 'self_experiments'});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!context.read<PurchaseProvider>().isPro) {
+        setState(() => _loading = false);
+        return;
+      }
+      _load();
+      AnalyticsService().track(AnalyticsService.eSelfCompassionOpened, {'card': 'self_experiments'});
+    });
   }
 
   Future<void> _load() async {
@@ -91,9 +102,11 @@ class _ExperimentScreenState extends State<ExperimentScreen> {
         title: Text(S.t(context, 'experimentTitle'), style: const TextStyle(color: AppColors.textPrimary)),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      body: ProGateWidget(
+        trigger: 'experiment_gate',
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(S.t(context, 'experimentNewLabel'), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
@@ -118,6 +131,7 @@ class _ExperimentScreenState extends State<ExperimentScreen> {
               ..._experiments.map((e) => _ExperimentCard(experiment: e, onResult: _recordResult)),
             ],
           ],
+        ),
         ),
       ),
     );
@@ -171,7 +185,7 @@ class _ExperimentCard extends StatelessWidget {
               })),
           ]),
           const SizedBox(height: 4),
-          Text('${dt.day}.${dt.month}.${dt.year}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+          Text(LocaleDates.yMd(context, dt), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
         ],
       ),
     );

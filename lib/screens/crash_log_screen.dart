@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
 import '../l10n/strings.dart';
+import '../formatting/locale_dates.dart';
 import '../providers/purchase_provider.dart';
 import '../services/analytics_service.dart';
 import '../services/encryption_service.dart';
@@ -467,7 +468,7 @@ class _ArchiveCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = '${entry.createdAt.day.toString().padLeft(2, '0')}.${entry.createdAt.month.toString().padLeft(2, '0')}.${entry.createdAt.year}';
+    final dateStr = LocaleDates.yMd(context, entry.createdAt);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

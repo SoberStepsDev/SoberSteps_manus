@@ -11,4 +11,12 @@ void main() {
       }
     }
   });
+
+  test('all locales share the same keys as en', () {
+    final en = S.debugKeys('en');
+    for (final loc in S.debugLocaleCodes) {
+      if (loc == 'en') continue;
+      expect(S.debugKeys(loc), en, reason: 'key set mismatch for $loc');
+    }
+  });
 }

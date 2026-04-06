@@ -117,7 +117,6 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.crisisRed, foregroundColor: AppColors.textPrimary),
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  TtsService().playAsset('audio/three_am/breath_guide.mp3');
                   _submitStruggling(provider);
                 },
                 child: Text(S.t(context, 'iStruggling')),
@@ -147,11 +146,13 @@ class _ThreeAmScreenState extends State<ThreeAmScreen> {
     if (!mounted) return;
     if (result != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S.t(context, 'holdOn'))),
-      );
+      return;
     }
+    // Breath guide only after the wall post is saved — avoids error + audio mismatch.
+    TtsService().playAsset('audio/three_am/breath_guide.mp3');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(S.t(context, 'holdOn'))),
+    );
   }
 
   Future<void> _resolveDialog(ThreeAmProvider provider) async {

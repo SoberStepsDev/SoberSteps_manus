@@ -19,7 +19,8 @@ class WallProvider extends ChangeNotifier {
       final res = await _supabase
           .from('return_to_self_wall')
           .select()
-          .order('timestamp', ascending: false)
+          .eq('is_visible', true)
+          .order('created_at', ascending: false)
           .limit(50);
       _posts = (res as List).map((e) => WallOfStrengthPost.fromJson(e)).toList();
     } catch (_) {}
@@ -27,15 +28,14 @@ class WallProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addPost(String content, {bool anonymous = true}) async {
+  Future<void> addPost(String content) async {
     final uid = _supabase.auth.currentUser?.id;
     if (uid == null) return;
     await _supabase.from('return_to_self_wall').insert({
       'id': const Uuid().v4(),
       'user_id': uid,
       'content': content,
-      'timestamp': DateTime.now().toIso8601String(),
-      'anonymous': anonymous,
+      'is_visible': true,
     });
     await loadPosts();
   }
