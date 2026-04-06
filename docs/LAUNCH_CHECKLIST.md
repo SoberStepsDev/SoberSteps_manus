@@ -115,6 +115,23 @@ flutter build appbundle --release --dart-define=IS_DEVELOPMENT=false
 
 **Podpis:** bez pliku `android/key.properties` Gradle używa **klucza debug** — taki AAB **nie nadaje się** do produkcji w Play (upload się nie powiedzie lub trafi tylko do ograniczonych ścieżek testowych). Przed review: keystore + `key.properties` (wzór: `android/key.properties.example`), potem **przebuduj** AAB.
 
+**Błąd uploadu: „signed with the wrong key” (SHA1 się nie zgadza)**  
+- Komunikat z Play podaje **oczekiwany** certyfikat (**upload key** zarejestrowany przy aplikacji).  
+- Odcisk **`E4:EC:AC:E8:FC:09:A8:B3:83:B6:53:0B:C0:24:0D:AD:C1:97:C7:96`** to typowy **`~/.android/debug.keystore`** na macOS — czyli zbudowałeś release **bez** `key.properties` albo ze złym plikiem `.jks`.  
+- **Naprawa:** użyj keystore’a, którego **SHA1** = ten **oczekiwany** w konsoli (np. `5C:58:19:49:…`). Ustaw `android/key.properties` (`storeFile`, `storePassword`, `keyPassword`, `keyAlias`), potem od nowa:
+
+  `flutter clean && flutter build appbundle --release --dart-define=IS_DEVELOPMENT=false`
+
+- **Sprawdź odcisk przed uploadem** (podstaw ścieżkę do `.jks` i alias):
+
+  ```bash
+  /Applications/Android\ Studio.app/Contents/jbr/Contents/Home/bin/keytool -list -v -keystore /ścieżka/do/upload-keystore.jks -alias TWÓJ_ALIAS
+  ```
+
+  Porównaj linię **SHA1** z Play Console → **App integrity** (lub tekstem błędu przy uploadzie).
+
+- **Jeśli nie masz już pliku `.jks`** o tym odcisku: w Play Console → **App integrity** / ochrona integralności → **Request upload key reset** (lub kreator **Change signing key**) — bez tego żaden lokalny build nie przejdzie walidacji uploadu.
+
 **W konsoli (skrót):**
 
 1. **Testowanie i wydanie** → wybór ścieżki (**Wewnętrzne** / **Zamknięte** / **Otwarte** / **Produkcja**) → **Utwórz nowe wydanie** → wgraj `.aab`.
