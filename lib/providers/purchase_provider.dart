@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../constants/app_constants.dart';
 import '../l10n/strings.dart';
@@ -10,6 +13,7 @@ import '../services/purchase_service.dart';
 
 class PurchaseProvider extends ChangeNotifier {
   final AnalyticsService _analytics = AnalyticsService();
+  StreamSubscription<AuthState>? _authSub;
 
   bool _isPremium = false;
   String? _activeProductId;
@@ -44,6 +48,10 @@ class PurchaseProvider extends ChangeNotifier {
   }
 
   Future<void> init() async {
+    PurchaseService.onCustomerInfoUpdated = (CustomerInfo info) {
+      _applyCustomerInfo(info);
+      notifyListeners();
+    };
     await PurchaseService.initialize();
     try {
       final info = await PurchaseService.getCustomerInfo();
@@ -55,6 +63,12 @@ class PurchaseProvider extends ChangeNotifier {
     await _loadShownUpsells();
     final prefs = await SharedPreferences.getInstance();
     _abVariant = prefs.getString('ab_variant') ?? 'A';
+    await _pullAbVariantFromSupabase();
+    _authSub = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      if (data.session?.user != null) {
+        unawaited(_pullAbVariantFromSupabase());
+      }
+    });
     final installStr = prefs.getString('install_date');
     if (installStr != null) {
       _installDate = DateTime.parse(installStr);
@@ -181,5 +195,28 @@ class PurchaseProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getStringList('shown_upsells') ?? [];
     _shownUpsells.addAll(raw.map(int.parse));
+  }
+
+  /// Server source of truth: `profiles.ab_variant` (RPC `get_ab_variant`).
+  Future<void> _pullAbVariantFromSupabase() async {
+    final uid = Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) return;
+    try {
+      final v = await Supabase.instance.client.rpc(
+        'get_ab_variant',
+        params: {'p_user_id': uid},
+      );
+      if (v == null || v.toString().isEmpty) return;
+      _abVariant = v.toString();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('ab_variant', _abVariant);
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    _authSub?.cancel();
+    super.dispose();
   }
 }

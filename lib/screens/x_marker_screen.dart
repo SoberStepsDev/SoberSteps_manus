@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../app/theme.dart';
+import '../providers/purchase_provider.dart';
 import '../services/analytics_service.dart';
 import '../l10n/strings.dart';
+import '../widgets/pro_gate_widget.dart';
 
 /// X-Marker — daily self-care act checkbox.
 /// Table: daily_self_acts (id, user_id, note, created_at)
@@ -23,8 +26,15 @@ class _XMarkerScreenState extends State<XMarkerScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
-    AnalyticsService().track(AnalyticsService.eSelfCompassionOpened, {'card': 'x_marker'});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!context.read<PurchaseProvider>().isPro) {
+        setState(() => _loading = false);
+        return;
+      }
+      _load();
+      AnalyticsService().track(AnalyticsService.eSelfCompassionOpened, {'card': 'x_marker'});
+    });
   }
 
   Future<void> _load() async {
@@ -93,9 +103,11 @@ class _XMarkerScreenState extends State<XMarkerScreen> {
         title: Text(S.t(context, 'xMarkerTitle'), style: const TextStyle(color: AppColors.textPrimary)),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      body: ProGateWidget(
+        trigger: 'x_marker_gate',
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -162,6 +174,7 @@ class _XMarkerScreenState extends State<XMarkerScreen> {
                         ),
             ),
           ],
+        ),
         ),
       ),
     );

@@ -47,8 +47,8 @@ await supabase.rpc('check_post_rate_limit')          // returns bool
 await supabase.rpc('check_three_am_rate_limit')      // returns bool
 await supabase.rpc('check_letter_rate_limit')        // returns bool (free: max 1 active)
 await supabase.rpc('flag_post', params: {'post_id': id})
-await supabase.rpc('get_ab_variant')                 // returns 'A'|'B'|'C'
-await supabase.rpc('increment_community_post_likes', params: {'post_id': id})
+await supabase.rpc('get_ab_variant', params: {'p_user_id': userId})  // profiles.ab_variant → 'A'|'B'|'C'
+await supabase.rpc('increment_community_post_likes', params: {'p_post_id': postId})
 ```
 
 ### Edge Functions (wszystkie ACTIVE)

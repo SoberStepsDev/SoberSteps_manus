@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../app/theme.dart';
 import '../l10n/strings.dart';
 import '../providers/sobriety_provider.dart';
+import '../widgets/pro_gate_widget.dart';
 
 class SavingsHealthScreen extends StatefulWidget {
   const SavingsHealthScreen({super.key});
@@ -42,9 +43,11 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(S.t(context, 'savingsHealth'))),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
+      body: ProGateWidget(
+        trigger: 'savings_health_gate',
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
           children: [
             // Money saved
             _BigCard(
@@ -92,6 +95,7 @@ class _SavingsHealthScreenState extends State<SavingsHealthScreen> {
             ),
             const SizedBox(height: 32),
           ],
+        ),
         ),
       ),
     );

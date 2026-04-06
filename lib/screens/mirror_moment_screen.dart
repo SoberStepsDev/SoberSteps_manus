@@ -6,8 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../app/theme.dart';
 import '../l10n/strings.dart';
+import '../providers/purchase_provider.dart';
 import '../providers/sobriety_provider.dart';
 import '../services/tts_service.dart';
+import '../widgets/pro_gate_widget.dart';
 
 class MirrorMomentScreen extends StatefulWidget {
   const MirrorMomentScreen({super.key});
@@ -62,8 +64,10 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
       _activeMirrorDay = active;
     });
 
-    // Play audio for the active mirror day
-    TtsService().playAsset('audio/mirror/mirror_day$_activeMirrorDay.mp3');
+    if (!mounted) return;
+    if (context.read<PurchaseProvider>().isPro) {
+      TtsService().playAsset('audio/mirror/mirror_day$_activeMirrorDay.mp3');
+    }
   }
 
   @override
@@ -77,7 +81,9 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
     if (day == _activeMirrorDay) return;
     TtsService().stop();
     setState(() => _activeMirrorDay = day);
-    TtsService().playAsset('audio/mirror/mirror_day$day.mp3');
+    if (context.read<PurchaseProvider>().isPro) {
+      TtsService().playAsset('audio/mirror/mirror_day$day.mp3');
+    }
   }
 
   Future<void> _save() async {
@@ -125,9 +131,11 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
         title: Text(S.t(context, 'mirrorMoment')),
         actions: const [],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
+      body: ProGateWidget(
+        trigger: 'mirror_moment_gate',
+        child: SafeArea(
+          child: Column(
+            children: [
             _buildDaySelector(daysSober),
             Expanded(
               child: SingleChildScrollView(
@@ -152,6 +160,7 @@ class _MirrorMomentScreenState extends State<MirrorMomentScreen> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

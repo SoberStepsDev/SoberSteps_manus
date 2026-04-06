@@ -10,12 +10,18 @@ class PurchaseService {
 
   static bool _configured = false;
 
+  /// Set from [PurchaseProvider.init] before or after [initialize]; invoked on every RC customer info update.
+  static void Function(CustomerInfo)? onCustomerInfoUpdated;
+
   static Future<void> initialize() async {
     if (_configured) return;
     if (kDebugMode) {
       await Purchases.setLogLevel(LogLevel.debug);
     }
     await Purchases.configure(PurchasesConfiguration(AppConstants.revenueCatApiKey));
+    Purchases.addCustomerInfoUpdateListener((CustomerInfo info) {
+      onCustomerInfoUpdated?.call(info);
+    });
     _configured = true;
   }
 
