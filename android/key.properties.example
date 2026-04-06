@@ -4,7 +4,8 @@
 #   • "App signing key" (e.g. SHA-1 85:6B:6C:…) = Google’s key for store installs — NOT used in key.properties.
 #   • "Upload key" = your .jks; its SHA-1 must match keytool on that file and your AAB uploads.
 #
-# Copy Upload key certificate SHA-1 from that section (it changes if you used "Change signing key").
+# Upload key SHA-1/256 in Console may stay empty until the first .aab signed with that key is uploaded and processed.
+# Copy Upload key certificate SHA-1 from that section once it appears (after "Change signing key" or first upload).
 # Legacy upload SHA-1 (before rotation): 5C:58:19:49:85:21:D2:34:E6:40:C5:7F:F0:FA:D4:FC:FC:0F:C5:E5
 # Verify: EXPECTED_PLAY_UPLOAD_SHA1='AA:BB:…' android/scripts/verify_play_upload_key.sh
 #
