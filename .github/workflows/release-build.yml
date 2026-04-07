@@ -46,4 +46,3 @@ jobs:
           name: sobersteps-release-${{ github.ref_name }}
           path: build/app/outputs/bundle/release/app-release.aab
           retention-days: 30
-
