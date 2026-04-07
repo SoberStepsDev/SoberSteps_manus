@@ -99,6 +99,8 @@
 
 - [ ] Uzupełnić `android/key.properties`
 
+- [ ] **Upload key SHA-1 (SoberSteps, Play Console):** `5C:58:19:49:85:21:D2:34:E6:40:C5:7F:F0:FA:D4:FC:FC:0F:C5:E5` — `keytool -list -v` na używanym `.jks` musi pokazać ten sam odcisk; inaczej upload AAB się nie powiedzie.
+
 - [ ] `flutter build appbundle --release --dart-define=IS_DEVELOPMENT=false ...`
 
 ---

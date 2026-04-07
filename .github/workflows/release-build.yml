@@ -14,9 +14,10 @@ jobs:
       
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          # Must match pubspec environment.sdk (^3.11.0); 3.24.x ships older Dart.
+          flutter-version: '3.41.6'
           channel: 'stable'
-          cache: true
+          cache: false
 
       - name: Install dependencies
         run: flutter pub get
