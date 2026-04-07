@@ -1,6 +1,8 @@
 # SoberSteps — Faza 1 Handoff dla Cursor AI
 ## Status: 🔄 FAZA 2 W TOKU — Sesje 1–3 ukończone
-Wygenerowano: 2026-04-04 | Ostatnia aktualizacja: 2026-04-04 (sesje 2–3 Cursor AI)
+Wygenerowano: 2026-04-04 | Ostatnia aktualizacja: 2026-04-08 (odnośniki do polityk repo)
+
+**Polityki dokumentów (security, `pub`, keystore):** [docs/README.md](README.md) → [SECURITY.md](../SECURITY.md), [DEPENDENCIES.md](DEPENDENCIES.md), [android/KEYSTORE.md](../android/KEYSTORE.md).
 
 ---
 

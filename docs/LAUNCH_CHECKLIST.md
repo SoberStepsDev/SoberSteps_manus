@@ -1,6 +1,6 @@
 # SoberSteps — Launch Checklist
 
-> Ostatnia aktualizacja: 2026-04-06 (Sesja 21 — Recovery+ Audit)
+> Ostatnia aktualizacja: 2026-04-08 (polityki repo: SECURITY, DEPENDENCIES, checklist)
 
 ---
 
@@ -154,6 +154,14 @@ flutter build appbundle --release --dart-define=IS_DEVELOPMENT=false
 | Testy zamknięte | `https://play.google.com/console/u/0/developers/5406187422596596688/app/4973377659246608619/tracks/closed-testing` |
 
 **Stan sprawdzony w konsoli (2026-04):** opis sklepu i grafiki wypełnione; *App content* → „You're all caught up”. Brak wydania na ścieżce **Internal testing** — następny krok: **Select testers** + **Create new release** + upload podpisanego `.aab`.
+
+---
+
+## Polityki repozytorium (GitHub)
+
+- [x] **[SECURITY.md](../SECURITY.md)** w korzeniu repo — zgłaszanie luk przez **Security → Report a vulnerability**
+- [ ] Włączyć **Private vulnerability reporting** (Settings → General → Security) jeśli jeszcze wyłączone
+- [x] **[docs/DEPENDENCIES.md](DEPENDENCIES.md)** — polityka `pub`, zgodność z workflow Flutter w CI
 
 ---
 

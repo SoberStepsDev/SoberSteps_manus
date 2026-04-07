@@ -5,6 +5,7 @@ Aplikacja Flutter do wspierania trzeźwości (SoberSteps).
 ## Dokumentacja w repozytorium
 
 - **[docs/](docs/)** — checklista launch, spec Recovery+, handoff workflow, polityka zależności  
+- **[SECURITY.md](SECURITY.md)** — zgłaszanie luk w zabezpieczeniach (odpowiedzialne ujawnianie)  
 - **[android/KEYSTORE.md](android/KEYSTORE.md)** — podpisywanie buildów Android
 
 ## Szybki start
